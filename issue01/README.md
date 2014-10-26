@@ -1,4 +1,4 @@
-Swift Weekly - Issue 01
+Swift Weekly - Issue 01 - Pointers
 ===
 __Note:__ the source of this page is in the __.pages__ file which is right in this folder. Please download either the .pages or the .pdf or the many other formats that have been provided in this folder for Swift Weekly. The markdown for this page has been hand-written and converted from the __.pages__ file.
 
