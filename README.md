@@ -5,4 +5,4 @@ Swift Weekly is an exciting and new weekly magazine for Swift programming langua
 
 Here are the available issues:
 
-- Issue 01 (Pointers)
+- [Issue 01 - Pointers](issue01/)
