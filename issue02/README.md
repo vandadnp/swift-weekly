@@ -27,7 +27,7 @@ println(b)
 And then I had a look at the generated assembly:
 
 ```asm
-qword [ss:rbp+var_48], 0xabcdefa
+mov        qword [ss:rbp+var_48], 0xabcdefa
 mov        qword [ss:rbp+var_50], 0xabcdefa
 mov        r8, qword [ds:imp___got___TMdSi] ; imp___got___TMdSi
 add        r8, 0x8
