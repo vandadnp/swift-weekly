@@ -69,9 +69,9 @@ This is quite a bit of code really for that very simple Swift code that we wrote
 	0x0000000100001b81 48C745F0FADEBC0A                mov        qword [ss:rbp+0xfffffffffffffff0], 0xabcdefa
 	```
 
-	So this tells me that `var_10` comes __before__ `var_8` in memory. So the compiler is placing the value of `0xabcdefa` into the memory address at `0xfffffffffffffff0` in the stack and then placing the same value in the stack again at 8 bytes __after__ the first one. So the reason for this is that the first `mov` instruction places the value of `0xabcdefa` into our variable and the next one places the same value into the stack, ready for the `println` call. So the compiler is intelligent enough to know that the `println` instruction is passed the value of the variable `a` but since the value of this variable is now in the stack, it is more efficient to place the same value directly into the stack for the `println` call rather than read the value of the `a` variable from the stack and place it in the stack again. So this is what we learnt.
+	So this tells me that `var_10` comes __before__ `var_8` in memory. So the compiler is placing the value of `0xabcdefa` into the memory address at `0xfffffffffffffff0` in the stack and then placing the same value in the stack again at 8 bytes __after__ the first one. So the reason for this is that the first `mov` instruction places the value of `0xabcdefa` into our constant and the next one places the same value into the stack, ready for the `println` call. So the compiler is intelligent enough to know that the `println` instruction is passed the value of the constant `a` but since the value of this constant is now in the stack, it is more efficient to place the same value directly into the stack for the `println` call rather than read the value of the `a` constant from the stack and place it in the stack again. So this is what we learnt.
 	
-3. As you can see, the rest is also self explanatory. The value of `0xabcdefb` is placed inside the `b` variable, `println` again and so on.
+3. As you can see, the rest is also self explanatory. The value of `0xabcdefb` is placed inside the `b` constant, `println` again and so on.
 
 Now let's see what the compiler will generate if we execute this code:
 
