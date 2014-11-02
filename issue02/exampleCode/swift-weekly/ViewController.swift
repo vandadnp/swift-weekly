@@ -1,8 +1,8 @@
 //
 //  ViewController.swift
-//  swift-weekly-issue02
+//  swift-weekly
 //
-//  Created by Vandad NP on 11/1/14.
+//  Created by Vandad NP on 11/2/14.
 //  Copyright (c) 2014 Pixolity Ltd. All rights reserved.
 //
 

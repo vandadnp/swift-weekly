@@ -1,15 +1,15 @@
 //
-//  swift_weekly_issue02Tests.swift
-//  swift-weekly-issue02Tests
+//  swift_weeklyTests.swift
+//  swift-weeklyTests
 //
-//  Created by Vandad NP on 11/1/14.
+//  Created by Vandad NP on 11/2/14.
 //  Copyright (c) 2014 Pixolity Ltd. All rights reserved.
 //
 
 import UIKit
 import XCTest
 
-class swift_weekly_issue02Tests: XCTestCase {
+class swift_weeklyTests: XCTestCase {
     
     override func setUp() {
         super.setUp()

@@ -5,16 +5,16 @@
 	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
 	<false/>
 	<key>IDESourceControlProjectIdentifier</key>
-	<string>94F74049-3A34-4FD9-9812-62A3E117C513</string>
+	<string>390B886F-07AB-4400-A2D6-C4857948FCCA</string>
 	<key>IDESourceControlProjectName</key>
-	<string>swift-weekly-issue02</string>
+	<string>swift-weekly</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
 		<key>E94A170A65EDFE8DA707E7E6CDF20E24A328FC93</key>
 		<string>github.com:vandadnp/swift-weekly.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>issue02/exampleCode/swift-weekly-issue02.xcodeproj</string>
+	<string>issue02/exampleCode/swift-weekly.xcodeproj</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
 		<key>E94A170A65EDFE8DA707E7E6CDF20E24A328FC93</key>

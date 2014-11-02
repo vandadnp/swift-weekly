@@ -1,2 +1,6 @@
 .DS_Store
+build.sh
+build/
+build/**
+build
 

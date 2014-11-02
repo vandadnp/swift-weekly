@@ -4,7 +4,7 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
-		<key>swift-weekly-issue02.xcscheme</key>
+		<key>swift-weekly.xcscheme</key>
 		<dict>
 			<key>orderHint</key>
 			<integer>0</integer>
@@ -12,12 +12,12 @@
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
-		<key>9DF73A901A053B0A00F1660B</key>
+		<key>9DB9A00A1A063E6E00D451B3</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>9DF73AA51A053B0A00F1660B</key>
+		<key>9DB9A01F1A063E6E00D451B3</key>
 		<dict>
 			<key>primary</key>
 			<true/>

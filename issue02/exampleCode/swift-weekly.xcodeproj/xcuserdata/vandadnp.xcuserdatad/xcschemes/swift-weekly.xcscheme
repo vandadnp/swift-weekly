@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0600"
+   LastUpgradeVersion = "0610"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -14,10 +14,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "9DF73A901A053B0A00F1660B"
-               BuildableName = "swift-weekly-issue02.app"
-               BlueprintName = "swift-weekly-issue02"
-               ReferencedContainer = "container:swift-weekly-issue02.xcodeproj">
+               BlueprintIdentifier = "9DB9A00A1A063E6E00D451B3"
+               BuildableName = "swift-weekly.app"
+               BlueprintName = "swift-weekly"
+               ReferencedContainer = "container:swift-weekly.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
@@ -28,10 +28,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "9DF73AA51A053B0A00F1660B"
-               BuildableName = "swift-weekly-issue02Tests.xctest"
-               BlueprintName = "swift-weekly-issue02Tests"
-               ReferencedContainer = "container:swift-weekly-issue02.xcodeproj">
+               BlueprintIdentifier = "9DB9A01F1A063E6E00D451B3"
+               BuildableName = "swift-weeklyTests.xctest"
+               BlueprintName = "swift-weeklyTests"
+               ReferencedContainer = "container:swift-weekly.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -46,20 +46,20 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "9DF73AA51A053B0A00F1660B"
-               BuildableName = "swift-weekly-issue02Tests.xctest"
-               BlueprintName = "swift-weekly-issue02Tests"
-               ReferencedContainer = "container:swift-weekly-issue02.xcodeproj">
+               BlueprintIdentifier = "9DB9A01F1A063E6E00D451B3"
+               BuildableName = "swift-weeklyTests.xctest"
+               BlueprintName = "swift-weeklyTests"
+               ReferencedContainer = "container:swift-weekly.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "9DF73A901A053B0A00F1660B"
-            BuildableName = "swift-weekly-issue02.app"
-            BlueprintName = "swift-weekly-issue02"
-            ReferencedContainer = "container:swift-weekly-issue02.xcodeproj">
+            BlueprintIdentifier = "9DB9A00A1A063E6E00D451B3"
+            BuildableName = "swift-weekly.app"
+            BlueprintName = "swift-weekly"
+            ReferencedContainer = "container:swift-weekly.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </TestAction>
@@ -75,10 +75,10 @@
       <BuildableProductRunnable>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "9DF73A901A053B0A00F1660B"
-            BuildableName = "swift-weekly-issue02.app"
-            BlueprintName = "swift-weekly-issue02"
-            ReferencedContainer = "container:swift-weekly-issue02.xcodeproj">
+            BlueprintIdentifier = "9DB9A00A1A063E6E00D451B3"
+            BuildableName = "swift-weekly.app"
+            BlueprintName = "swift-weekly"
+            ReferencedContainer = "container:swift-weekly.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <AdditionalOptions>
@@ -93,10 +93,10 @@
       <BuildableProductRunnable>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "9DF73A901A053B0A00F1660B"
-            BuildableName = "swift-weekly-issue02.app"
-            BlueprintName = "swift-weekly-issue02"
-            ReferencedContainer = "container:swift-weekly-issue02.xcodeproj">
+            BlueprintIdentifier = "9DB9A00A1A063E6E00D451B3"
+            BuildableName = "swift-weekly.app"
+            BlueprintName = "swift-weekly"
+            ReferencedContainer = "container:swift-weekly.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
