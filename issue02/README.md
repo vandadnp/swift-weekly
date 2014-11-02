@@ -1,4 +1,4 @@
-Swift Weekly - Issue 02 - Digging into the Swift Runtime
+Swift Weekly - Issue 02 - The Swift Runtime (Part 1)
 ===
 	Vandad Nahavandipoor
 	http://www.oreilly.com/pub/au/4596
