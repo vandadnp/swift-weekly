@@ -9,44 +9,20 @@
 import Foundation
 
 struct Person{
+  var age: Int = 0
+  var sex: Int = 0
+  var numberOfChildren: Int = 0
   
-  func example1(){
-    let a = 0xabcdefa
-    println(a)
-    let b = 0xabcdefb
-    println(b)
+  mutating func setAge(paramAge: Int){
+    age = paramAge
   }
   
-  func example2(){
-    let a = 0xabcdefa
-    println(0xabcdefa)
+  mutating func setSex(paramSex: Int){
+    sex = paramSex
   }
   
-  func example3(){
-    let a = 0xabcdefa
-    var b = 0xabcdefb
-    let c = a + b
+  mutating func setNumberOfChildren(paramNumberOfChildren: Int){
+    numberOfChildren = paramNumberOfChildren
   }
-  
-  func example4(){
-    let intConstant = 0xabcdefa
-    let intVariable = 0xabcdefb
-    
-    let boolConstant = true
-    var boolVariable = false
-    
-    let doubleConstant = 1.23
-    let doubleVariable = 2.34
-    
-    let floatConstant:Float = 1.23
-    let floatVariable: Float = 2.34
-  }
-  
-func example5(){
-  let stringConstant = "Vandad"
-  var stringVariable = "Sara"
-  let concatenatedConstant = stringConstant + stringVariable
-  var concatenatedVariable = stringConstant + stringVariable
-}
   
 }
