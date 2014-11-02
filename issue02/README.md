@@ -77,9 +77,9 @@ Now let's see what the compiler will generate if we execute this code:
 
 ```swift
 func example2(){
-    let a = 0xabcdefa
-    println(0xabcdefa)
-  }
+  let a = 0xabcdefa
+  println(0xabcdefa)
+}
 ```
 
 The reason that I want to find this information out is to find out if the compiler will be intelligent enough to somehow understand that the value we are printing is the same value in the `a` constant and use that instead... Let's see what happens:
@@ -108,6 +108,100 @@ One more observation is that the `rdi` and the `rsi` registers are being set up 
 1.	The `rdi` register will point to the top of the stack where the parameters for the function are stored.
 2. The `rsi` register will be set to _a_ value in the data-segment (I don't really understand that part of the code, `[ds:imp___got___TMdSi]`. If you know what this means, please correct this sentence and send a pull request.
 
+Mixing Constants and Variables
+===
+Now let's see how the Swift compiler deals with constants and variables in how it generates the assembly code:
+
+```swift
+func example3(){
+  let a = 0xabcdefa
+  var b = 0xabcdefb
+  let c = a + b
+}
+```
+
+The assembly for this is:
+
+```asm
+0x0000000100001b60 55                              push       rbp
+0x0000000100001b61 4889E5                          mov        rbp, rsp
+0x0000000100001b64 48C745F0FADEBC0A                mov        qword [ss:rbp+var_10], 0xabcdefa
+0x0000000100001b6c 48C745F8FBDEBC0A                mov        qword [ss:rbp+var_8], 0xabcdefb
+0x0000000100001b74 48C745E8F5BD7915                mov        qword [ss:rbp+var_18], 0x1579bdf5
+0x0000000100001b7c 5D                              pop        rbp
+0x0000000100001b7d C3                              ret
+```
+
+The results are very clear:
+1.	Both __local__ constants and variables of type `Int` are stack values.
+2. When a constant and a variable of type `Int` are added, Swift does not write code for the addition, but instead, if the information is available, adds the values at compile time and puts the results into the stack directly, saving execution time.
+
+
+Now let's have a look at some more data types like _Bool_, _double_ and _CGFloat__.
+
+```swift
+func example4(){
+  let intConstant = 0xabcdefa
+  let intVariable = 0xabcdefb
+  
+  let boolConstant = true
+  var boolVariable = false
+  
+  let doubleConstant = 1.23
+  let doubleVariable = 2.34
+  
+  let floatConstant:Float = 1.23
+  let floatVariable: Float = 2.34
+}
+```
+
+And let's have a look at the output assembly:
+
+```asm
+0x0000000100001ae0 55                              push       rbp
+0x0000000100001ae1 4889E5                          mov        rbp, rsp
+0x0000000100001ae4 F30F1005CC180000                movss      xmm0, dword [ds:0x1000033b8] ; 0x1000033b8
+0x0000000100001aec F30F100DC8180000                movss      xmm1, dword [ds:0x1000033bc] ; 0x1000033bc
+0x0000000100001af4 F20F1015C4180000                movsd      xmm2, qword [ds:0x1000033c0] ; 0x1000033c0
+0x0000000100001afc F20F101DC4180000                movsd      xmm3, qword [ds:0x1000033c8] ; 0x1000033c8
+0x0000000100001b04 48C745F0FADEBC0A                mov        qword [ss:rbp+var_10], 0xabcdefa
+0x0000000100001b0c 48C745E8FBDEBC0A                mov        qword [ss:rbp+var_18], 0xabcdefb
+0x0000000100001b14 C645E001                        mov        byte [ss:rbp+var_20], 0x1
+0x0000000100001b18 C645F800                        mov        byte [ss:rbp+var_8], 0x0
+0x0000000100001b1c F20F115DD8                      movsd      xmmword [ss:rbp+var_28], xmm3
+0x0000000100001b21 F20F1155D0                      movsd      xmmword [ss:rbp+var_30], xmm2
+0x0000000100001b26 F30F114DC8                      movss      xmmword [ss:rbp+var_38], xmm1
+0x0000000100001b2b F30F1145C0                      movss      xmmword [ss:rbp+var_40], xmm0
+0x0000000100001b30 5D                              pop        rbp
+0x0000000100001b31 C3                              ret
+```
+
+What is happening here is that the Swift compiler, for the x86_64 architecture:
+
+1. Is placing the values of the doubles and the floats into the 128-bit SSE before the function even starts. The values for the floats and the doubles are stored in the data segment, so they are loaded into the `xmm0` through to the `xmm3` SSE registers.
+2. Is loading the values of `0xabcdefa` and `0xabcdefb` into the stack segment, for the `Int` values, as we saw before.
+3. Is loading the values of `true` and `false` as `0x01` and `0x00` into the stack, as bytes. That makes perfect sense.
+4. It is then placing the 2x double values and 2x float values from the SSE registers of `xmm3` to `xmm0` into the stack, using the `movsd` instruction for doubles and `movss` for floats. `movsd` is for moving double precision floating point values and `movss` is for single precision so in fact Swift is differentiating between double and float. By defaut, we are encouraged to use doubles in Swift by the way instead of floats. However, reading the actual address of the `var_28`, `var_30`, 38 and 40 we can see the following:
+
+	```asm
+	0x0000000100001b1c F20F115DD8                      movsd      xmmword [ss:rbp+0xffffffffffffffd8], xmm3
+	0x0000000100001b21 F20F1155D0                      movsd      xmmword [ss:rbp+0xffffffffffffffd0], xmm2
+	0x0000000100001b26 F30F114DC8                      movss      xmmword [ss:rbp+0xffffffffffffffc8], xmm1
+	0x0000000100001b2b F30F1145C0                      movss      xmmword [ss:rbp+0xffffffffffffffc0], xmm0
+	```
+	
+	This tells me that each one of the floating points and doubles is 8 bytes long. So single precision and double precision values are both stored in an 8-byte long data-segment space. So that's good to know. If you use floating values instead of double, you are __not__ making your binary smaller, so you might as well use double!
+	
+Now let's look an example for strings:
+
+```swift
+func example5(){
+  let stringConstant = "Vandad"
+  var stringVariable = "Sara"
+  let concatenatedConstant = stringConstant + stringVariable
+  var concatenatedVariable = stringConstant + stringVariable
+}
+```
 
 
 
