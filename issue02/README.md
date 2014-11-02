@@ -131,7 +131,7 @@ The results are very clear:
 2. When a constant and a variable of type `Int` are added, Swift does not write code for the addition, but instead, if the information is available, adds the values at compile time and puts the results into the stack directly, saving execution time.
 
 
-Now let's have a look at some more data types like _Bool_, _double_ and _CGFloat__.
+Now let's have a look at some more data types like _Bool_, _double_ and _CGFloat_.
 
 ```swift
 func example4(){
