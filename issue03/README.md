@@ -193,10 +193,46 @@ pop        rbp
 ret
 ```
 
+Okay, quite a bit of code. No surprise there. Let's break it down:
+
+1.	The `mov        byte [ss:rbp+0xfffffffffffffff8], 0x0` puts the __index__ of `0x00` into the top of the stack. This is the index of the enum value we are trying to print, into the `MaleNames` enum. Index of 0 is the string value of `"Vandad"`. Okay. So that index is now in the stack.
+2. The `lea        rax, qword [ds:__TMdO12swift_weekly9MaleNames]` code loads the address of the `MaleNames` structure into the `rax` 64-bit register. Think of `rax` as now a pointer to the `MaleNames` enumeration.
+3. The `add        rax, 0x8` code will then move `rax` 8 bytes forward in the memory. I have to say that I do not know why this is happening or why the compiler is doing this but I will try to find out now. I had a look at the memory address to which `rax` points to __before__ this instruction and that data is obviously in the data segment like so:
+
+	```asm
+	0x0000000100006480                                 dq         0x0000000100006380 ; XREF=__TFV12swift_weekly7Example8example2fS0_FT_T_+8, __TFV12swift_weekly7Example8example2fS0_FT_T_+40
+	0x0000000100006488                                 db  0x02 ; '.'
+	0x0000000100006489                                 db  0x00 ; '.'
+	0x000000010000648a                                 db  0x00 ; '.'
+	0x000000010000648b                                 db  0x00 ; '.'
+	0x000000010000648c                                 db  0x00 ; '.'
+	0x000000010000648d                                 db  0x00 ; '.'
+	0x000000010000648e                                 db  0x00 ; '.'
+	0x000000010000648f                                 db  0x00 ; '.'
+	0x0000000100006490                                 db  0x40 ; '@'
+	0x0000000100006491                                 db  0x64 ; 'd'
+	```
+	
+	The `dq` is a [pseudo-instruction](https://www.tortall.net/projects/yasm/manual/html/nasm-pseudop.html) that outputs a 64-bit or 8-bytes long value into the segment in which it is placed, in this case, the data 	segment. So if `rax` was pointing right into this memory address (remember? `[ds:__TMdO12swift_weekly9MaleNames]`), then adding `0x08` to `rax` will move `rax` to the byte right __after__ this quad-double value, or 	the value at `0x0000000100006488` into the data-segment which itself is a `db`, and contains only 1 byte long and contains the byte value of `0x02`. But why? If you have any idea why this is, please submit a pull 	request so that everybody will get to know.
+	
+4. Following the [System V calling convention](http://en.wikipedia.org/wiki/X86_calling_conventions#System_V_AMD64_ABI), the `rdi` register will be set to the index of the value into the `MaleNames` enum which we are printing and `rsi` will point to the tip of the `MaleNames` enumeration. That is all the `println()` function needs in order to be able to print the value that it needs to. Since this value is a string, we just pass its address in the data segment into the `println()` function and that function will know what to do with it.
+5. Now look at the rest of the original code for the second item in the `MaleNames` enum.
+
+	```asm
+	lea        rcx, qword [ss:rbp+0xfffffffffffffff0]
+	mov        byte [ss:rbp+0xfffffffffffffff0], 0x1
+	```
+
+	You will notice that the index of the second item into the enumeration is placed on top of the stack and the rest is similar to before. The address of the top of the `MaleNames` enum is placed inside the `rax` 	register and then the mysterious `add` instruction is called. Again, if you know what this does, please send a pull request and correct this article.
+
+5. If now you look at the rest of the original code in this section, you will realize that the `FemaleNames` code also works in the exact same way as the `MaleNames` enum.
+
 Conclusions
 ===
 1.	For every `Int` enumeration, Swift compiles a function that maps the enumeration items into their raw values.
-2. The index of the item into the `Int` enum is passed through the `edi` register to the function for translation into its raw value. Again, as we saw in the second issue of Swift Weekly, this is the System V calling convention.
+2. The index of the item into the `Int` enum is passed through the `edi` register to the function for translation into its raw value. Again, as we saw in the second issue of Swift Weekly, this is the [System V calling convention](http://en.wikipedia.org/wiki/X86_calling_conventions#System_V_AMD64_ABI).
 3. The raw value of `Int` enumeration items are stored on the `cs` segment (code segment), not data segment.
 4. Values for enumeration items of type `String` are stored in the data segment, as opposed to the `Int` enum items that are stored in the code segment. This is slower of course since the data has to be loaded from the data segment using its effective address as opposed to the direct `mov dword` instruction for `Int` items.
 5. The Swift compiler supports [string interning](http://en.wikipedia.org/wiki/String_interning) for enumeration items of type `String`.
+6. In the case of `String` enumeration values, the index of the enum item into the enumeration alongside the address to the top of the enumeration in the data segment is created in order to be passed around, into functions such as `println()`.
+7. 
