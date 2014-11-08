@@ -5,5 +5,6 @@ Swift Weekly is an exciting and new weekly magazine for Swift programming langua
 
 Here are the available issues:
 
-- [Issue 01 - Pointers](issue01/)
-- [Issue 02 - The Swift Runtime (Part 1)](issue02/)
+- [Issue 01 - Pointers](issue01/README.md)
+- [Issue 02 - The Swift Runtime (Part 1)](issue02/README.md)
+- [Issue 03 - The Swift Runtime (Part 2) - Enumerations](issue03/README.md)
