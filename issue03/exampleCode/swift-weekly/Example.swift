@@ -13,16 +13,35 @@ enum CarType: Int{
   case CarTypeHatchback
 }
 
+enum MaleNames: String{
+  case Vandad = "Vandad"
+  case Kim = "Kim"
+}
+
+enum FemaleNames: String{
+  case Sara = "Sara"
+  case Kim = "Kim"
+}
+
 struct Example{
   
-func example1(){
+  func example1(){
+    
+    let saloon = CarType.CarTypeSaloon
+    println(saloon.rawValue)
+    
+    let hatchback = CarType.CarTypeHatchback
+    println(hatchback.rawValue)
+    
+  }
   
-  let saloon = CarType.CarTypeSaloon
-  println(saloon.rawValue)
-  
-  let hatchback = CarType.CarTypeHatchback
-  println(hatchback.rawValue)
-  
-}
+  func example2(){
+    
+    println(MaleNames.Vandad)
+    println(MaleNames.Kim)
+    println(FemaleNames.Sara)
+    println(FemaleNames.Kim)
+    
+  }
   
 }

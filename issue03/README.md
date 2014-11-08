@@ -10,6 +10,8 @@ Introduction
 ===
 This is the second article in the Swift Runtime series of the Swift Weekly. In this article, we will dig deeper into the Swift Runtime and how the compiler deals with producing code for enumerations. Saturday morning writings are always fun! Let's get this show started.
 
+If you are an Objective-C or Swift programmer and have __not__ done any Assembly programming or are simply not concerned with the low-level details of this article, jump right into the Conclusion section at the end to get the _juice_ of this article.
+
 `Int` Enumerations in Swift
 ===
 Here is a simple enumeration that I've written:
@@ -112,11 +114,89 @@ Holy Jesus that's a lot of code. But it's really simple to understand. This is w
 
 3.	After we get the raw value of the enumeration, we call the `println` function and so on... the rest is really easy.
 
-`
+`String` Enumerations in Swift
+===
+Now let's look at an enumeration whose items are of type `String`:
 
+```swift
+enum MaleNames: String{
+  case Vandad = "Vandad"
+  case Kim = "Kim"
+}
+
+enum FemaleNames: String{
+  case Sara = "Sara"
+  case Kim = "Kim"
+}
+```
+
+Note that I've duplicated the value of `Kim` in both enumerations to see later if the compiler is able to handle [string interning](http://en.wikipedia.org/wiki/String_interning)
+
+And we will just use it like so:
+
+```swift
+func example2(){
+  
+  println(MaleNames.Vandad)
+  println(MaleNames.Kim)
+  println(FemaleNames.Sara)
+  println(FemaleNames.Kim)
+  
+}
+```
+
+First, let's see how Swift's compiler stores the values of our enumeration in the binary:
+
+```asm
+0x0000000100005120                                 db         "Vandad", 0       ; XREF=__TFO12swift_weekly9MaleNamesCfMS0_FT8rawValueSS_GSqS0__+11, __TFO12swift_weekly9MaleNamesg8rawValueSS+39
+0x0000000100005127                                 db         "Kim", 0          ; XREF=__TFO12swift_weekly9MaleNamesCfMS0_FT8rawValueSS_GSqS0__+508, __TFO12swift_weekly9MaleNamesg8rawValueSS+82, __TFO12swift_weekly11FemaleNamesCfMS0_FT8rawValueSS_GSqS0__+508, __TFO12swift_weekly11FemaleNamesg8rawValueSS+82
+0x000000010000512b                                 db         "Sara", 0         ; XREF=__TFO12swift_weekly11FemaleNamesCfMS0_FT8rawValueSS_GSqS0__+11, __TFO12swift_weekly11FemaleNamesg8rawValueSS+39
+```
+Great, so the string enumeration values are stored in the data segment. Look at the string `Kim` though. Even though this string appears in both the `MaleNames` and `Female` names enumerations, it only appears once in the data segment. That's good. That's called [string interning](http://en.wikipedia.org/wiki/String_interning).
+
+And also let's have a look at the code that the compiler generated for the `example2()` Swift code:
+
+```asm
+push       rbp
+mov        rbp, rsp
+sub        rsp, 0x20
+lea        rax, qword [ds:__TMdO12swift_weekly9MaleNames] ; __TMdO12swift_weekly9MaleNames
+add        rax, 0x8
+lea        rcx, qword [ss:rbp+0xfffffffffffffff8]
+mov        byte [ss:rbp+0xfffffffffffffff8], 0x0
+mov        rdi, rcx
+mov        rsi, rax
+call       imp___stubs___TFSs7printlnU__FQ_T_
+lea        rax, qword [ds:__TMdO12swift_weekly9MaleNames] ; __TMdO12swift_weekly9MaleNames
+add        rax, 0x8
+lea        rcx, qword [ss:rbp+0xfffffffffffffff0]
+mov        byte [ss:rbp+0xfffffffffffffff0], 0x1
+mov        rdi, rcx
+mov        rsi, rax
+call       imp___stubs___TFSs7printlnU__FQ_T_
+lea        rax, qword [ds:__TMdO12swift_weekly11FemaleNames] ; __TMdO12swift_weekly11FemaleNames
+add        rax, 0x8
+lea        rcx, qword [ss:rbp+0xffffffffffffffe8]
+mov        byte [ss:rbp+0xffffffffffffffe8], 0x0
+mov        rdi, rcx
+mov        rsi, rax
+call       imp___stubs___TFSs7printlnU__FQ_T_
+lea        rax, qword [ds:__TMdO12swift_weekly11FemaleNames] ; __TMdO12swift_weekly11FemaleNames
+add        rax, 0x8
+lea        rcx, qword [ss:rbp+0xffffffffffffffe0]
+mov        byte [ss:rbp+0xffffffffffffffe0], 0x1
+mov        rdi, rcx
+mov        rsi, rax
+call       imp___stubs___TFSs7printlnU__FQ_T_
+add        rsp, 0x20
+pop        rbp
+ret
+```
 
 Conclusions
 ===
 1.	For every `Int` enumeration, Swift compiles a function that maps the enumeration items into their raw values.
 2. The index of the item into the `Int` enum is passed through the `edi` register to the function for translation into its raw value. Again, as we saw in the second issue of Swift Weekly, this is the System V calling convention.
 3. The raw value of `Int` enumeration items are stored on the `cs` segment (code segment), not data segment.
+4. Values for enumeration items of type `String` are stored in the data segment, as opposed to the `Int` enum items that are stored in the code segment. This is slower of course since the data has to be loaded from the data segment using its effective address as opposed to the direct `mov dword` instruction for `Int` items.
+5. The Swift compiler supports [string interning](http://en.wikipedia.org/wiki/String_interning) for enumeration items of type `String`.
