@@ -10,9 +10,9 @@ import UIKit
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
-
+  
   var window: UIWindow?
-
+  
   func example1(){
     let a = 0xabcdefa
     println(a)
@@ -46,19 +46,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   }
   
   func example5(){
-//    let person = Person(age: 30)
+    //    let person = Person(age: 30)
   }
   
-func example6(){
-  var person = Person()
-  person.age = 0xabcdefa
-  person.sex = 0xabcdefb
-  person.numberOfChildren = 0xabcdefc
-}
-
+  func example6(){
+    var person = Person()
+    person.age = 0xabcdefa
+    person.sex = 0xabcdefb
+    person.numberOfChildren = 0xabcdefc
+  }
+  
   func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
     return true
   }
-
+  
 }
 
