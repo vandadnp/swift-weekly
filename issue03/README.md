@@ -227,6 +227,92 @@ Okay, quite a bit of code. No surprise there. Let's break it down:
 
 5. If now you look at the rest of the original code in this section, you will realize that the `FemaleNames` code also works in the exact same way as the `MaleNames` enum.
 
+Enumeration Case Statements
+===
+Let's have a look at our original enum again:
+
+```swift
+enum CarType: Int{
+  case CarTypeSaloon = 0xabcdefa
+  case CarTypeHatchback
+}
+```
+
+And then write the following code:
+
+```swift
+func carType() -> CarType{
+  return .CarTypeHatchback
+}
+
+func example3(){
+  
+  let type = carType()
+  
+  switch type{
+  case .CarTypeSaloon:
+    println(0xaaaaaaaa)
+  case .CarTypeHatchback:
+    println(0xbbbbbbbb)
+  default:
+    println(0xcccccccc)
+  }
+  
+}
+```
+
+And let's have a look at the output. I'm going to keep the address of the code segments intact without removing them because there are a lot of `jmp` and `jne` unconditional and conditional jumps in this assembly code:
+
+```asm
+0x00000001000039d0 55                     push       rbp
+0x00000001000039d1 4889E5                 mov        rbp, rsp
+0x00000001000039d4 4883EC20               sub        rsp, 0x20
+0x00000001000039d8 E8E3FFFFFF             call       __TFV12swift_weekly7Example7carTypefS0_FT_OS_7CarType
+0x00000001000039dd 88C1                   mov        cl, al
+0x00000001000039df 80E101                 and        cl, 0x1
+0x00000001000039e2 884DF8                 mov        byte [ss:rbp+var_8], cl
+0x00000001000039e5 84C9                   test       cl, cl
+0x00000001000039e7 8845E7                 mov        byte [ss:rbp+var_19], al
+0x00000001000039ea 7539                   jne        0x100003a25
+
+0x00000001000039ec EB00                   jmp        0x1000039ee
+
+0x00000001000039ee 8A45E7                 mov        al, byte [ss:rbp+var_19] ; XREF=__TFV12swift_weekly7Example8example3fS0_FT_T_+28
+0x00000001000039f1 A801                   test       al, 0x1
+0x00000001000039f3 7402                   je         0x1000039f7
+
+0x00000001000039f5 EB00                   jmp        0x1000039f7
+
+0x00000001000039f7 EB00                   jmp        0x1000039f9       ; XREF=__TFV12swift_weekly7Example8example3fS0_FT_T_+35, __TFV12swift_weekly7Example8example3fS0_FT_T_+37
+
+0x00000001000039f9 488B0540260000         mov        rax, qword [ds:imp___got___TMdSi] ; imp___got___TMdSi, XREF=__TFV12swift_weekly7Example8example3fS0_FT_T_+39
+0x0000000100003a00 480508000000           add        rax, 0x8
+0x0000000100003a06 488D4DE8               lea        rcx, qword [ss:rbp+var_18]
+0x0000000100003a0a 48BAAAAAAAAA00000000   mov        rdx, 0xaaaaaaaa
+0x0000000100003a14 488955E8               mov        qword [ss:rbp+var_18], rdx
+0x0000000100003a18 4889CF                 mov        rdi, rcx
+0x0000000100003a1b 4889C6                 mov        rsi, rax
+0x0000000100003a1e E84D030000             call       imp___stubs___TFSs7printlnU__FQ_T_
+0x0000000100003a23 EB2C                   jmp        0x100003a51
+
+0x0000000100003a25 EB00                   jmp        0x100003a27       ; XREF=__TFV12swift_weekly7Example8example3fS0_FT_T_+26
+
+0x0000000100003a27 488B0512260000         mov        rax, qword [ds:imp___got___TMdSi] ; imp___got___TMdSi, XREF=__TFV12swift_weekly7Example8example3fS0_FT_T_+85
+0x0000000100003a2e 480508000000           add        rax, 0x8
+0x0000000100003a34 488D4DF0               lea        rcx, qword [ss:rbp+var_10]
+0x0000000100003a38 48BABBBBBBBB00000000   mov        rdx, 0xbbbbbbbb
+0x0000000100003a42 488955F0               mov        qword [ss:rbp+var_10], rdx
+0x0000000100003a46 4889CF                 mov        rdi, rcx
+0x0000000100003a49 4889C6                 mov        rsi, rax
+0x0000000100003a4c E81F030000             call       imp___stubs___TFSs7printlnU__FQ_T_
+
+0x0000000100003a51 4883C420               add        rsp, 0x20         ; XREF=__TFV12swift_weekly7Example8example3fS0_FT_T_+83
+0x0000000100003a55 5D                     pop        rbp
+0x0000000100003a56 C3                     ret
+```
+
+
+
 Conclusions
 ===
 1.	For every `Int` enumeration, Swift compiles a function that maps the enumeration items into their raw values.
