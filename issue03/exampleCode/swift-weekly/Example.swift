@@ -46,23 +46,23 @@ struct Example{
     
   }
   
-func carType() -> CarType{
-  return .CarTypeHatchback
-}
-
-func example3(){
-  
-  let type = carType()
-  
-  switch type{
-  case .CarTypeSaloon:
-    println(0xaaaaaaaa)
-  case .CarTypeHatchback:
-    println(0xbbbbbbbb)
-  default:
-    println(0xcccccccc)
+  func carType() -> CarType{
+    return .CarTypeHatchback
   }
   
-}
+  func example3(){
+    
+    let type = carType()
+    
+    switch type{
+    case .CarTypeSaloon:
+      println(0xaaaaaaaa)
+    case .CarTypeHatchback:
+      println(0xbbbbbbbb)
+    default:
+      println(0xcccccccc)
+    }
+    
+  }
   
 }

@@ -310,10 +310,39 @@ And let's have a look at the output. I'm going to keep the address of the code s
 0x0000000100003a55 5D                     pop        rbp
 0x0000000100003a56 C3                     ret
 ```
+Holy Jesus, again. A bunch of code. But what is all of this doing? I think to be able to analyze this better, it's best to find the equivalent of each one of the chunks of code from Swift, to asm.
 
+This code in Swift:
 
+```swift
+case .CarTypeSaloon:
+	println(0xaaaaaaaa)
+```
 
-Conclusions
+Became this:
+
+```asm
+mov        rax, qword [ds:imp___got___TMdSi] ; imp___got___TMdSi, XREF=__TFV12swift_weekly7Example8example3fS0_FT_T_+39
+add        rax, 0x8
+lea        rcx, qword [ss:rbp+var_18]
+mov        rdx, 0xaaaaaaaa
+mov        qword [ss:rbp+var_18], rdx
+mov        rdi, rcx
+mov        rsi, rax
+call       imp___stubs___TFSs7printlnU__FQ_T_
+jmp        0x100003a51
+```
+
+Here what is happening is that we are placing the value of `0xaaaaaaaa` into the stack and then calling the `println` function. Nothing magical here. The same happens for this code:
+
+```swift
+case .CarTypeHatchback:
+	println(0xbbbbbbbb)
+```
+
+However, what is very interesting here is that the value of our default case is nowhere to be found (`0xcccccccc`). What happened to it? It turns out that the compiler realized that the value we assigned to the `type` constant was a compile-time constant indeed. Knowing the value of that constant, and the various cases to which we compared it to in our switch statement, it didn't even compile the default case. So that's good to know.
+
+Conclusion
 ===
 1.	For every `Int` enumeration, Swift compiles a function that maps the enumeration items into their raw values.
 2. The index of the item into the `Int` enum is passed through the `edi` register to the function for translation into its raw value. Again, as we saw in the second issue of Swift Weekly, this is the [System V calling convention](http://en.wikipedia.org/wiki/X86_calling_conventions#System_V_AMD64_ABI).
@@ -321,4 +350,8 @@ Conclusions
 4. Values for enumeration items of type `String` are stored in the data segment, as opposed to the `Int` enum items that are stored in the code segment. This is slower of course since the data has to be loaded from the data segment using its effective address as opposed to the direct `mov dword` instruction for `Int` items.
 5. The Swift compiler supports [string interning](http://en.wikipedia.org/wiki/String_interning) for enumeration items of type `String`.
 6. In the case of `String` enumeration values, the index of the enum item into the enumeration alongside the address to the top of the enumeration in the data segment is created in order to be passed around, into functions such as `println()`.
-7. 
+7. If the value of a variable or a constant that is the target of a `switch` statement is a compile-time constant, the `default` case of the switch statement will not be compiled if the constant/variable has already been handled in one of the cases. Smart!
+
+Where to go from Here
+===
+This was the second article in which we dived into the Swift runtime to get an understanding how the compiler works. If you want to learn more about the Swift runtime and its internals, check back next week and we will talk more about it.
