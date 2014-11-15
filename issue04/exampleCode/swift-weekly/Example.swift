@@ -22,4 +22,28 @@ class Example{
     
   }
   
+  func example2(){
+    
+    var int1 = 0xabcdefa
+    var int2 = 0xabcdefb
+    var int3 = int1 + int2
+    println(int3)
+    
+    var int4 = 0xabcdefa + 0xabcdefb
+    println(int4)
+    
+  }
+  
+  func randomInt() -> Int{
+    return Int(arc4random_uniform(UInt32.max))
+  }
+  
+  func example3(){
+    
+    var int1 = randomInt()
+    var int2 = randomInt()
+    var int3 = int1 + int2
+    
+  }
+  
 }
