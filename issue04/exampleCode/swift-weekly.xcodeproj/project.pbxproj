@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9D2D7FF81A17363400FF54CB /* Example.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D2D7FF71A17363400FF54CB /* Example.swift */; };
 		9D4F02FD1A173422003B2DAD /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D4F02FC1A173422003B2DAD /* AppDelegate.swift */; };
 		9D4F02FF1A173422003B2DAD /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D4F02FE1A173422003B2DAD /* ViewController.swift */; };
 		9D4F03021A173422003B2DAD /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9D4F03001A173422003B2DAD /* Main.storyboard */; };
@@ -26,6 +27,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		9D2D7FF71A17363400FF54CB /* Example.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Example.swift; sourceTree = "<group>"; };
 		9D4F02F71A173422003B2DAD /* swift-weekly.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "swift-weekly.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9D4F02FB1A173422003B2DAD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9D4F02FC1A173422003B2DAD /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -83,6 +85,7 @@
 				9D4F03031A173422003B2DAD /* Images.xcassets */,
 				9D4F03051A173422003B2DAD /* LaunchScreen.xib */,
 				9D4F02FA1A173422003B2DAD /* Supporting Files */,
+				9D2D7FF71A17363400FF54CB /* Example.swift */,
 			);
 			path = "swift-weekly";
 			sourceTree = "<group>";
@@ -214,6 +217,7 @@
 			files = (
 				9D4F02FF1A173422003B2DAD /* ViewController.swift in Sources */,
 				9D4F02FD1A173422003B2DAD /* AppDelegate.swift in Sources */,
+				9D2D7FF81A17363400FF54CB /* Example.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -338,9 +342,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				GCC_OPTIMIZATION_LEVEL = s;
 				INFOPLIST_FILE = "swift-weekly/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
 			};
 			name = Debug;
 		};
@@ -348,6 +354,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				INFOPLIST_FILE = "swift-weekly/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -407,6 +414,7 @@
 				9D4F03181A173422003B2DAD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		9D4F03191A173422003B2DAD /* Build configuration list for PBXNativeTarget "swift-weeklyTests" */ = {
 			isa = XCConfigurationList;
@@ -415,6 +423,7 @@
 				9D4F031B1A173422003B2DAD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
