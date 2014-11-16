@@ -18,6 +18,8 @@ In this edition of Swift Weekly, I will show you how the Swift compiler works de
 
 __Note__: in this edition of Swift Weekly, I'm going to change things a little bit and instead of building for the debug configuration, I am going to build for Release to ensure that the assembly code that we are going to analyze is as optimized as what you will get when you release the app for the App Store. Optimization is hence enabled and the assembly output is long. That means setting the `Optimization Level` in your build settings to `Fastest, Smallest [-Os]` to ensure you get the `export GCC_OPTIMIZATION_LEVEL=s` export when you build your project.
 
+__Note__: to ensure that the assembly code which we will look at is clean and nice without too much unnecessary code, I will remove bits and pieces of it but will keep all the assembly code that is relevant.
+
 The `+` Operator on Constant `Int` Values
 ===
 The `+` operator is usually used for integers so let's have a look at a basic usage:
@@ -47,22 +49,6 @@ mov        rbx, rdi
 mov        qword [ss:rbp+var_10], 0x1579bdf5
 lea        rdi, qword [ss:rbp+var_10]
 call       __TTSSi_VSs7_StdoutS_Ss16OutputStreamType___TFSs5printU_Ss16OutputStreamType__FTQ_RQ0__T_
-xor        edi, edi
-call       imp___stubs__swift_unknownRetain
-xor        edi, edi
-call       imp___stubs__swift_unknownRetain
-xor        edi, edi
-call       imp___stubs__swift_unknownRetain
-xor        edi, edi
-call       imp___stubs__swift_unknownRelease
-xor        edi, edi
-call       imp___stubs__swift_unknownRetain
-xor        edi, edi
-call       imp___stubs__swift_unknownRelease
-xor        edi, edi
-call       imp___stubs__swift_unknownRelease
-xor        edi, edi
-call       imp___stubs__swift_unknownRelease
 mov        edi, 0xa          ; argument #1 for method imp___stubs__putchar
 call       imp___stubs__putchar
 xor        edi, edi
@@ -70,22 +56,6 @@ call       imp___stubs__swift_unknownRelease
 mov        qword [ss:rbp+var_18], 0x1579bdf5
 lea        rdi, qword [ss:rbp+var_18]
 call       __TTSSi_VSs7_StdoutS_Ss16OutputStreamType___TFSs5printU_Ss16OutputStreamType__FTQ_RQ0__T_
-xor        edi, edi
-call       imp___stubs__swift_unknownRetain
-xor        edi, edi
-call       imp___stubs__swift_unknownRetain
-xor        edi, edi
-call       imp___stubs__swift_unknownRetain
-xor        edi, edi
-call       imp___stubs__swift_unknownRelease
-xor        edi, edi
-call       imp___stubs__swift_unknownRetain
-xor        edi, edi
-call       imp___stubs__swift_unknownRelease
-xor        edi, edi
-call       imp___stubs__swift_unknownRelease
-xor        edi, edi
-call       imp___stubs__swift_unknownRelease
 mov        edi, 0xa          ; argument #1 for method imp___stubs__putchar
 call       imp___stubs__putchar
 xor        edi, edi
@@ -175,22 +145,6 @@ mov        rbx, rdi
 mov        qword [ss:rbp+var_10], 0x1579bdf5
 lea        rdi, qword [ss:rbp+var_10]
 call       __TTSSi_VSs7_StdoutS_Ss16OutputStreamType___TFSs5printU_Ss16OutputStreamType__FTQ_RQ0__T_
-xor        edi, edi
-call       imp___stubs__swift_unknownRetain
-xor        edi, edi
-call       imp___stubs__swift_unknownRetain
-xor        edi, edi
-call       imp___stubs__swift_unknownRetain
-xor        edi, edi
-call       imp___stubs__swift_unknownRelease
-xor        edi, edi
-call       imp___stubs__swift_unknownRetain
-xor        edi, edi
-call       imp___stubs__swift_unknownRelease
-xor        edi, edi
-call       imp___stubs__swift_unknownRelease
-xor        edi, edi
-call       imp___stubs__swift_unknownRelease
 mov        edi, 0xa          ; argument #1 for method imp___stubs__putchar
 call       imp___stubs__putchar
 xor        edi, edi
@@ -198,22 +152,6 @@ call       imp___stubs__swift_unknownRelease
 mov        qword [ss:rbp+var_18], 0x1579bdf5
 lea        rdi, qword [ss:rbp+var_18]
 call       __TTSSi_VSs7_StdoutS_Ss16OutputStreamType___TFSs5printU_Ss16OutputStreamType__FTQ_RQ0__T_
-xor        edi, edi
-call       imp___stubs__swift_unknownRetain
-xor        edi, edi
-call       imp___stubs__swift_unknownRetain
-xor        edi, edi
-call       imp___stubs__swift_unknownRetain
-xor        edi, edi
-call       imp___stubs__swift_unknownRelease
-xor        edi, edi
-call       imp___stubs__swift_unknownRetain
-xor        edi, edi
-call       imp___stubs__swift_unknownRelease
-xor        edi, edi
-call       imp___stubs__swift_unknownRelease
-xor        edi, edi
-call       imp___stubs__swift_unknownRelease
 mov        edi, 0xa          ; argument #1 for method imp___stubs__putchar
 call       imp___stubs__putchar
 xor        edi, edi
@@ -429,22 +367,6 @@ and see the output:
 0x0000000100002a65 48895DE0       mov        qword [ss:rbp+var_20], rbx
 0x0000000100002a69 488D7DE0       lea        rdi, qword [ss:rbp+var_20]
 0x0000000100002a6d E88E090000     call       __TTSSi_VSs7_StdoutS_Ss16OutputStreamType___TFSs5printU_Ss16OutputStreamType__FTQ_RQ0__T_
-0x0000000100002a72 31FF           xor        edi, edi
-0x0000000100002a74 E80F070100     call       imp___stubs__swift_unknownRetain
-0x0000000100002a79 31FF           xor        edi, edi
-0x0000000100002a7b E808070100     call       imp___stubs__swift_unknownRetain
-0x0000000100002a80 31FF           xor        edi, edi
-0x0000000100002a82 E801070100     call       imp___stubs__swift_unknownRetain
-0x0000000100002a87 31FF           xor        edi, edi
-0x0000000100002a89 E8F4060100     call       imp___stubs__swift_unknownRelease
-0x0000000100002a8e 31FF           xor        edi, edi
-0x0000000100002a90 E8F3060100     call       imp___stubs__swift_unknownRetain
-0x0000000100002a95 31FF           xor        edi, edi
-0x0000000100002a97 E8E6060100     call       imp___stubs__swift_unknownRelease
-0x0000000100002a9c 31FF           xor        edi, edi
-0x0000000100002a9e E8DF060100     call       imp___stubs__swift_unknownRelease
-0x0000000100002aa3 31FF           xor        edi, edi
-0x0000000100002aa5 E8D8060100     call       imp___stubs__swift_unknownRelease
 0x0000000100002aaa BF0A000000     mov        edi, 0xa          ; argument #1 for method imp___stubs__putchar
 0x0000000100002aaf E826060100     call       imp___stubs__putchar
 0x0000000100002ab4 31FF           xor        edi, edi
@@ -507,15 +429,51 @@ Ternary operator... I remember discussing this with my co-workers a few years ba
 ```swift
 func example5(){
   
-  let int1 = randomInt()
-  let int2 = randomInt()
+  let int1 = random()
+  let int2 = random()
   let int3 = int1 > int2 ? 0xabcdefa : 0xabcdefb
   
 }
 ```
+Note that I started using the `random()` function instead of our custom `randomInt()` function because the output assembly code with `random()` will just be much cleaner.
 
-compiles into:
+this code compiles into this:
 
+```asm
+push       rbp
+mov        rbp, rsp
+push       r14
+push       rbx
+sub        rsp, 0x10
+mov        r14, rdi
+call       imp___stubs__random
+mov        rbx, rax
+call       imp___stubs__random
+cmp        rbx, rax
+setle      al
+movzx      eax, al
+or         rax, 0xabcdefa
+mov        qword [ss:rbp+var_18], rax
+lea        rdi, qword [ss:rbp+var_18]
+call       __TTSSi_VSs7_StdoutS_Ss16OutputStreamType___TFSs5printU_Ss16OutputStreamType__FTQ_RQ0__T_
+mov        edi, 0xa          ; argument #1 for method imp___stubs__putchar
+call       imp___stubs__putchar
+xor        edi, edi
+mov        rdi, r14
+add        rsp, 0x10
+pop        rbx
+pop        r14
+pop        rbp
+jmp        imp___stubs__swift_release
+```
+
+Okay that's quite nice and clean __but__, wait a minute, there is no mention of `0xabcdefb`. What happened to our second value...? So if you look at the output, you can see `or         rax, 0xabcdefa` but there is no mention of `0xabcdefb`. Let's ee what happened:
+
+1. The 2 random values are placed inside `rbx` and `rax`, respectively.
+2. The `cmp` instruction is called comparing the two values. `cmp` really does a subtraction under the hoods (`sub`) and then sets the values for the `EFLAGS`. Read the Intel manuals in the References section of this article to find out more.
+3. Then the `setle` instruction is called. This is `set if less than or equal` which then sets the `al` register to `0x01` if the two random values are the same.
+4. The `movzx` is caleld on the `eax` register with `al`, basically setting the rest of the `eax` register to zero. Remember that `al` is the lower 8-bits of the `eax` 64-bit register on x86_64. So now `eax` is 1 if our random numbers are equal or zero if they aren't.
+5. Then the `or         rax, 0xabcdefa` instruction is called. __HOLY SHIT__. Do you understand what the compiler did? So `eax` is right now set to 1 __if the two random numbers are equal to each other__ and then boom, the whole register is `or`ed with the value of `0xabcdefa`. In other words, if the two random numbers are the same, `eax` will become `0x00000001 | 0xabcdefa` effectively making it `0xabcdefb` and if they are not equal, `eax` would have been zero from the comparison and will now be `or`ed with `0xabcdefa`, effectively making it `0xabcdefa`. Shit! that's some serious optimization the Swift compiler did right there. So instead of writing an if statement, it solved the problem with the `EFLAGS.
 
 
 Conclusion
@@ -536,7 +494,9 @@ Conclusion
 5. Addition of two local `Int` variables is performed using the `add` instruction, as expected. The values, dependent on how many registers are being used at the moment, will be placed inside one of the `r` registers, such as the `r15` or `r14`.
 6. `Int` variables on x86_64 are treated as true native 64-bit values, placed inside registers such as `eax` and `ebx`.
 7. Subtraction of variable `Int` values is done using the `sub` instruction, as expected.
+8. A ternary operator comparing two `Int` values and placing an `Int` into another variable or constant is solved using `EFLAGS`. No if statement is compiled by the compiler, further optimizing the output.
 
-Where to go from Here
+References
 ===
+1. [Intel® 64 and IA-32 Architectures Software Developer’s Manual Combined Volumes: 1, 2A, 2B, 2C, 3A, 3B and 3C](http://www.intel.com/content/www/us/en/processors/architectures-software-developer-manuals.html)
 

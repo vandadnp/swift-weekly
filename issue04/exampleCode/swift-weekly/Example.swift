@@ -55,13 +55,14 @@ class Example{
     
   }
   
-func example5(){
-  
-  let int1 = randomInt()
-  let int2 = randomInt()
-  let int3 = int1 > int2 ? 0xabcdefa : 0xabcdefb
-  
-}
+  func example5(){
+    
+    let int1 = random()
+    let int2 = random()
+    let int3 = int1 > int2 ? 0xabcdefa : 0xabcdefb
+    println(int3)
+    
+  }
   
 }
 
