@@ -46,4 +46,27 @@ class Example{
     
   }
   
+  func example4(){
+    
+    let int1 = randomInt()
+    let int2 = randomInt()
+    let int3 = int1 - int2
+    println(int3)
+    
+  }
+  
+func example5(){
+  
+  let int1 = randomInt()
+  let int2 = randomInt()
+  let int3 = int1 > int2 ? 0xabcdefa : 0xabcdefb
+  
 }
+  
+}
+
+
+
+
+
+
