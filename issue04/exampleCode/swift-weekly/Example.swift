@@ -64,6 +64,11 @@ class Example{
     
   }
   
+  func example6(){
+    let bool = Bool(random()) ? 0xabcdefa : 0xabcdefb
+    println(bool)
+  }
+  
 }
 
 

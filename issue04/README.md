@@ -1,7 +1,3 @@
-WORK IN PROGRESS
-
-
-
 Swift Weekly - Issue 04 - The Swift Runtime (Part 3) - Operators
 ===
 	Vandad Nahavandipoor
@@ -475,6 +471,61 @@ Okay that's quite nice and clean __but__, wait a minute, there is no mention of 
 4. The `movzx` is caleld on the `eax` register with `al`, basically setting the rest of the `eax` register to zero. Remember that `al` is the lower 8-bits of the `eax` 64-bit register on x86_64. So now `eax` is 1 if our random numbers are equal or zero if they aren't.
 5. Then the `or         rax, 0xabcdefa` instruction is called. __HOLY SHIT__. Do you understand what the compiler did? So `eax` is right now set to 1 __if the two random numbers are equal to each other__ and then boom, the whole register is `or`ed with the value of `0xabcdefa`. In other words, if the two random numbers are the same, `eax` will become `0x00000001 | 0xabcdefa` effectively making it `0xabcdefb` and if they are not equal, `eax` would have been zero from the comparison and will now be `or`ed with `0xabcdefa`, effectively making it `0xabcdefa`. Shit! that's some serious optimization the Swift compiler did right there. So instead of writing an if statement, it solved the problem with the `EFLAGS.
 
+Ternary Conditional Operator on `Bool` Values
+===
+So we saw the `Int` ternary operator but how does that work on `Bool` values? Let's see the Swift code first:
+
+```swift
+func example6(){
+  let bool = Bool(random()) ? 0xabcdefa : 0xabcdefb
+  println(bool)
+}
+```
+
+Create a boolean value out of a random number, then if it's `true`, put the value of `0xabcdefa` into our constant and if not, put the value of `0xabcdefb` into it and then print the results.
+
+Assembly output is this:
+
+```asm
+push       rbp
+mov        rbp, rsp
+push       rbx
+push       rax
+mov        rbx, rdi
+call       imp___stubs__random
+mov        rdi, rax
+call       imp___stubs___TFE10FoundationSi19_bridgeToObjectiveCfSiFT_CSo8NSNumber
+mov        rdi, rax
+call       imp___stubs___TFE10FoundationSbCfMSbFCSo8NSNumberSb
+test       al, 0x1
+sete       al
+movzx      eax, al
+or         rax, 0xabcdefa
+mov        qword [ss:rbp+var_10], rax
+lea        rdi, qword [ss:rbp+var_10]
+call       __TTSSi_VSs7_StdoutS_Ss16OutputStreamType___TFSs5printU_Ss16OutputStreamType__FTQ_RQ0__T_
+mov        edi, 0xa          ; argument #1 for method imp___stubs__putchar
+call       imp___stubs__putchar
+xor        edi, edi
+call       imp___stubs__swift_unknownRelease
+mov        rdi, rbx
+add        rsp, 0x8
+pop        rbx
+pop        rbp
+jmp        imp___stubs__swift_release
+```
+
+Here is what happened:
+
+1. The `imp___stubs__random` function is called, generating a random number in the `eax` register.
+2. The `imp___stubs___TFE10FoundationSi19_bridgeToObjectiveCfSiFT_CSo8NSNumber` function is called, translating the random number into an `NSNumber` instance. Why the hell would the compiler do this? If you know, please send a pull request through.
+3. The `imp___stubs___TFE10FoundationSbCfMSbFCSo8NSNumberSb` function is called to translate the `NSNumber` to a boolean. Well this is awkward. Why would the compiler go through this length?
+4. So now the `eax` register contains a boolean value (0 or 1) out of the random number. Then `test       al, 0x1` instruction is called comparing the boolean value with `true`. __Let's assume that the boolean value was true.__. The `test` instruction `and`s the true (`0x01`) with the value of `0x01` and if the result is zero (which in this case it won't be) it will set the zero flag to 1, which in this case, the zero flag will be set to `0x00` since the `and` will yield `0x01`.
+5. With our assumption in the previous step, the `sete       al` instruction is called, setting the value of `al` to `0x00` since the zero flag is set to 0.
+6. Then the `movzx      eax, al` is called making sure that the rest of the `eax` register is zero, keeping the lower 8-bits of this register (`al`) untouched. With our previous assumption, the whole `eax` register is now 0.
+7. And then `or         rax, 0xabcdefa` is executed. With our previous assumtpion and `eax` now being 0, this will make `rax` equal to `0xabcdefa`. If our `eax` was set to 1 from the previous operations, this would have yielded `0xabcdefb`.
+
+This is a very complicated way of dealing with a simple ternary but shows you how mature the Swift compiler has already become in terms of optimizing your code. No conditional jumps were used in this case.
 
 Conclusion
 ===
@@ -495,6 +546,7 @@ Conclusion
 6. `Int` variables on x86_64 are treated as true native 64-bit values, placed inside registers such as `eax` and `ebx`.
 7. Subtraction of variable `Int` values is done using the `sub` instruction, as expected.
 8. A ternary operator comparing two `Int` values and placing an `Int` into another variable or constant is solved using `EFLAGS`. No if statement is compiled by the compiler, further optimizing the output.
+9. No conditional jumps are used for ternary operator between two `Int` values.
 
 References
 ===
