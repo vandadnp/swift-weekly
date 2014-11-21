@@ -434,7 +434,7 @@ Now time to implement this class, don't you agree?
 	3. As soon as we get the response, data and the error, we save them in our url connection instance so that the programmer that uses our class can read them too if he wants to.
 	4. Then we go through our http code handlers and find the one that corresponds with the current http code and then call it if it exists. If the status code was not handled and we had a 		block object to execute in the case of unhandled-http-code, then we call that block.
 
-I have packaged this class up in my [open-source Swift library which is called Chorizo, under the name of `ChorizoProUrlConnection`. Check it out.](https://github.com/vandadnp/chorizo). Have a look at that for more information and inspirations/ideas.
+I have packaged this class up in my [open-source Swift library which is called Chorizo, under the name of `ChorizoProUrlConnection`. Check it out](https://github.com/vandadnp/chorizo). Have a look at that for more information and inspirations/ideas.
 
 
 
@@ -443,9 +443,11 @@ Conclusion
 1. Do not return `Void` from your methods if you want to create a fluent interface. Always return `Self` as the return type and return the actual `self` as the return value.
 2. In a fluent interface, when a functionality is turned off by default (`false`), do not enable this functionality through a property. Rather, create a method that returns `Self` and allows the programmer to enable the functionality. This allows for a fluent interface rather than `obj.property = value` type of old fashioned OOP programming.
 3. Fluent interfaces created in the right way eliminate the need of creating a variable pointing to the original object. The object is passed to the completion blocks whenever needed.
+4. Fluent interfaces mixed with the Builder pattern allow a class or a structure to Swift to encapsulate its own work within itself, and only expose logical listeners/handlers to the outside world, cutting the workd of the programmer that uses your APIs in half, getting rid of clutter and repetition in their code, getting rid of `if` statements and whatnot.
 
 References
 ===
 1. [Builder pattern](http://en.wikipedia.org/wiki/Builder_pattern)
 2. [Fluent interfaces](http://en.wikipedia.org/wiki/Fluent_interface)
 3. [14 Header Field Definitions](http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html)
+4. [Chorizo - An open-source Swift Fluent Interface library](https://github.com/vandadnp/chorizo)
