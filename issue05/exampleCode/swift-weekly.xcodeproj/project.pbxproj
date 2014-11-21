@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		9D6337671A1F561B003BB307 /* NameBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D6337661A1F561B003BB307 /* NameBuilder.swift */; };
+		9DB11BCC1A1FDE8600F065E2 /* FluentSerialQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DB11BCB1A1FDE8600F065E2 /* FluentSerialQueue.swift */; };
 		9DC5B1C31A1F54570064556E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DC5B1C21A1F54570064556E /* AppDelegate.swift */; };
 		9DC5B1C51A1F54570064556E /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DC5B1C41A1F54570064556E /* ViewController.swift */; };
 		9DC5B1C81A1F54570064556E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9DC5B1C61A1F54570064556E /* Main.storyboard */; };
@@ -30,6 +31,7 @@
 
 /* Begin PBXFileReference section */
 		9D6337661A1F561B003BB307 /* NameBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NameBuilder.swift; sourceTree = "<group>"; };
+		9DB11BCB1A1FDE8600F065E2 /* FluentSerialQueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FluentSerialQueue.swift; sourceTree = "<group>"; };
 		9DC5B1BD1A1F54570064556E /* swift-weekly.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "swift-weekly.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9DC5B1C11A1F54570064556E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9DC5B1C21A1F54570064556E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -92,6 +94,7 @@
 				9D6337661A1F561B003BB307 /* NameBuilder.swift */,
 				9DC5B1E21A1F58300064556E /* Boy.swift */,
 				9DC5B1E41A1F5B190064556E /* FluentUrlConnection.swift */,
+				9DB11BCB1A1FDE8600F065E2 /* FluentSerialQueue.swift */,
 			);
 			path = "swift-weekly";
 			sourceTree = "<group>";
@@ -224,6 +227,7 @@
 				9D6337671A1F561B003BB307 /* NameBuilder.swift in Sources */,
 				9DC5B1C51A1F54570064556E /* ViewController.swift in Sources */,
 				9DC5B1E31A1F58300064556E /* Boy.swift in Sources */,
+				9DB11BCC1A1FDE8600F065E2 /* FluentSerialQueue.swift in Sources */,
 				9DC5B1C31A1F54570064556E /* AppDelegate.swift in Sources */,
 				9DC5B1E51A1F5B190064556E /* FluentUrlConnection.swift in Sources */,
 			);

@@ -45,44 +45,57 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       }
       .start()
     
+    //NSURLConnection example
+    let url = NSURL(string: "http://vandadnp.wordpress.com")!
+    let request = NSMutableURLRequest(URL: url)
+    request.allHTTPHeaderFields = ["Accept-Encoding" : "gzip"]
+    let queue = NSOperationQueue()
     
-let url = NSURL(string: "http://vandadnp.wordpress.com")!
-let request = NSMutableURLRequest(URL: url)
-request.allHTTPHeaderFields = ["Accept-Encoding" : "gzip"]
-let queue = NSOperationQueue()
-
-NSURLConnection.sendAsynchronousRequest(request, queue: queue) { (response: NSURLResponse!, data: NSData!, error: NSError!) -> Void in
-  
-  if error != nil{
-    println("Error = \(error)")
-  } else {
-    
-    // success
-    
-    if let httpResponse = response as? NSHTTPURLResponse{
+    NSURLConnection.sendAsynchronousRequest(request, queue: queue) { (response: NSURLResponse!, data: NSData!, error: NSError!) -> Void in
       
-      if (httpResponse == 200){
-        
+      if error != nil{
+        println("Error = \(error)")
       } else {
         
-      }
-      
-      if data != nil{
-        // do something
+        // success
+        
+        if let httpResponse = response as? NSHTTPURLResponse{
+          
+          if (httpResponse == 200){
+            
+          } else {
+            
+          }
+          
+          if data != nil{
+            // do something
+          }
+          
+        }
+        
       }
       
     }
     
   }
   
-}
+  func example4(){
+    
+    FluentSerialQueue().onBackround { () -> () in
+      println("Background 1, thread = \(NSThread.currentThread())")
+      }.onMainThread { () -> () in
+        println("Main 1, thread = \(NSThread.currentThread())")
+      }.onBackround { () -> () in
+        println("Background 2, thread = \(NSThread.currentThread())")
+      }.onMainThread { () -> () in
+        println("Main 2, thread = \(NSThread.currentThread())")
+      }.start()
     
   }
   
   func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
     
-    example3()
-    
+    example4()
     
     return true
   }

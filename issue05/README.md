@@ -453,7 +453,7 @@ FluentUrlConnection(urlStr: "http://vandadnp.wordpress.com")
   .start()
 ```
 
-So awesome, at least I think so. Much clearner than the NSURLConnection equivalent of convoluted `if` statements and useless `NSURL` constructions:
+So awesome, at least I think so. Much clearner than the `NSURLConnection` equivalent of convoluted `if` statements and useless `NSURL` constructions:
 
 Here is the same code but with pure `NSURLConnection`. Kinda disgusting:
 
@@ -492,7 +492,163 @@ NSURLConnection.sendAsynchronousRequest(request, queue: queue) { (response: NSUR
 
 I have packaged this class up in my [open-source Swift library which is called Chorizo, under the name of `ChorizoProUrlConnection`. Check it out](https://github.com/vandadnp/chorizo). Have a look at that for more information and inspirations/ideas. I have also put the code inside the `exampleCode` folder of this folder in this repo so that's another way of getting the whole code for this class.
 
+Task Serialization with Fluent Interfaces
+===
+I think fluent interfaces are amazing for chaining calls. that's what they are really good for. So let's say that you have a few tasks that you want to do serially, but some are on the main thread, some on background threads, etc. You can do this with GCD obviously but the syntax is, well, a bit weird and you will have to create serial queues and etc. Ergh, who would want to do that?
 
+The other option is to use `NSOperationQueue` and that's pretty decent. But then again, let's have a look at some of the functions available in this class:
+
+```swift
+class NSOperationQueue : NSObject {
+    
+    func addOperation(op: NSOperation)
+    @availability(iOS, introduced=4.0)
+    func addOperations(ops: [AnyObject], waitUntilFinished wait: Bool)
+    
+    @availability(iOS, introduced=4.0)
+    func addOperationWithBlock(block: () -> Void)
+    
+    var operations: [AnyObject] { get }
+    @availability(iOS, introduced=4.0)
+    var operationCount: Int { get }
+    
+    var maxConcurrentOperationCount: Int
+    
+    var suspended: Bool
+    
+    @availability(iOS, introduced=4.0)
+    var name: String?
+    
+    @availability(iOS, introduced=8.0)
+    var qualityOfService: NSQualityOfService
+    
+    @availability(iOS, introduced=8.0)
+    unowned(unsafe) var underlyingQueue: dispatch_queue_t /* actually retain */
+    
+    func cancelAllOperations()
+    
+    func waitUntilAllOperationsAreFinished()
+    
+    @availability(iOS, introduced=4.0)
+    class func currentQueue() -> NSOperationQueue?
+    @availability(iOS, introduced=4.0)
+    class func mainQueue() -> NSOperationQueue
+}
+```
+
+What a shame... so many functions that return `Void`. So basicall you have to code your app like this:
+
+```swift
+queue.doThis()
+queue.doSomethingElse()
+queue.doBlaBla()
+```
+
+All this repitition makes me go crazy a bit. Why do I have to repeat `queue` all the time? Why do I even freaking need a variable name? No. We can make this look better. Let's start with the interface of our queue:
+
+```swift
+import Foundation
+
+typealias FluentQueueTask = () -> ()
+
+class FluentSerialQueue{
+  
+  func onBackround(task: FluentQueueTask) -> Self{
+    return self
+  }
+  
+  func onMainThread(task: FluentQueueTask) -> Self{
+
+    return self
+  }
+  
+  func start() -> Self{
+    return self
+  }
+  
+}
+```
+
+And we would like to be able to use this class to serially execute tasks on main and the background thread, one by one. This is how we will use it:
+
+```swift
+FluentSerialQueue().onBackround { () -> () in
+  println("Background 1, thread = \(NSThread.currentThread())")
+}.onMainThread { () -> () in
+  println("Main 1, thread = \(NSThread.currentThread())")
+}.onBackround { () -> () in
+  println("Background 2, thread = \(NSThread.currentThread())")
+}.onMainThread { () -> () in
+  println("Main 2, thread = \(NSThread.currentThread())")
+}.start()
+```
+
+Now do this with GCD, seriously. See your code, then look at this code. See your code again, and look at this code! Bear in mind that one cannot achieve the same type of elegance in code without fluent interfaces. God bless the fluent interfaces! Your code may achieve this same thing with GCD (obviously with more lines of code) but it will never be as flexible as this, in the exact same way. The calls on this class can be chained for ever basically and that's the beauty of the fluent interfaces. Now let's implement the class:
+
+```swift
+import Foundation
+
+typealias FluentQueueTask = () -> ()
+
+class FluentSerialQueue{
+  
+  private struct FluentTask{
+    var block: FluentQueueTask
+    var onBackgroundThread: Bool
+  }
+  
+  private lazy var tasks: [FluentTask] = {
+    return [FluentTask]()
+  }()
+  
+  private lazy var queue = dispatch_queue_create("com.pixolity.serialQueue", DISPATCH_QUEUE_SERIAL)
+  
+  func onBackround(task: FluentQueueTask) -> Self{
+    tasks.append(FluentTask(block: task, onBackgroundThread: true))
+    return self
+  }
+  
+  func onMainThread(task: FluentQueueTask) -> Self{
+    tasks.append(FluentTask(block: task, onBackgroundThread: false))
+    return self
+  }
+  
+  func start() -> Self{
+    
+    for task in tasks{
+      
+      if task.onBackgroundThread{
+        dispatch_async(queue, task.block)
+      }
+      else {
+        
+        dispatch_async(queue, { () -> Void in
+          let sema = dispatch_semaphore_create(0)
+          dispatch_async(dispatch_get_main_queue(), { () -> Void in
+            task.block()
+            dispatch_semaphore_signal(sema)
+          })
+          dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER)
+        })
+        
+      }
+      
+    }
+
+    return self
+  }
+  
+}
+```
+
+this is what I'm doing:
+
+1. For every task, I am defining the block object as `FluentQueueTask`. This is a block that takes no parameters and returns nothing.
+2. Internally, the class uses the `FluentTask` structure to define its tasks. This structure encapsulates the `FluentQueueTask` block and a boolean value that indicates whether the task has to be executed on a background thread or not.
+3. We also have an array of tasks named `tasks`. This is just a privately and lazily allocated array of tasks.
+4. The `queue` variable (it's not `let` because it is lazily allocated) is a serial GCD queue.
+5. For the `onBackround()` and the `onMainThread()` functions, we are just creating new instances of the `FluentTask` structure and placing them in our array ready for execution later.
+6. When the `start()` function is called and will serially execute our tasks. yes. that's a semaphore I'm using. if you know a better way of serially executing tasks on the main thread mixed with background threads, please fix this article and submit a pull request.
 
 Conclusion
 ===
