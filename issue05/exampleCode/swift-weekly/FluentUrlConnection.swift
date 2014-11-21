@@ -19,12 +19,20 @@ enum FluentUrlConnectionType : String{
 
 class FluentUrlConnection{
   
-  var url: NSURL
-  var type = FluentUrlConnectionType.GET
+  private var url: NSURL
+  private var type = FluentUrlConnectionType.GET
   
   var connectionData: NSData?
   var connectionError: NSError?
   var connectionResponse: NSURLResponse?
+  
+  private var unhandledHttpCodeHandler : Block?
+  
+  private lazy var httpCodeHandlers: [Int : Block] = {
+    return [Int : Block]()
+  }()
+  
+  private var httpBody: NSData?
   
   init(url: NSURL){
     self.url = url
@@ -39,16 +47,19 @@ class FluentUrlConnection{
   }
   
   func onHttpCode(code: Int, handler: Block) -> Self{
+    httpCodeHandlers[code] = handler
     return self
   }
   
   func onUnhandledHttpCode(handler: Block) -> Self{
+    unhandledHttpCodeHandler = handler
     return self
   }
   
-  func setHttpBody(body: NSData) -> Self{
-    return self
-  }
+func setHttpBody(body: NSData) -> Self{
+  httpBody = body
+  return self
+}
   
   func setHttpBody(body: String) -> Self{
     return setHttpBody(body.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false)!)

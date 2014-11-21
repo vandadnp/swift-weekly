@@ -135,8 +135,8 @@ enum FluentUrlConnectionType : String{
 
 class FluentUrlConnection{
   
-  var url: NSURL
-  var type = FluentUrlConnectionType.GET
+  private var url: NSURL
+  private var type = FluentUrlConnectionType.GET
   
   var connectionData: NSData?
   var connectionError: NSError?
@@ -233,6 +233,57 @@ Holy jesus, right? What happened here?
 Please just take a few moments now and properly think about what this code is doing. Don't think about the syntax as much. Think about the fact that the fluent interface and the builder pattern used in this example code is completely abstracting the complication of writing code and is pretty much eliminating all the shitty `if` statements that we may have had to write so far with `NSURLConnection`.
 
 Now time to implement this class, don't you agree?
+
+1. Let's start with the implementation of the `onHttpCode()` function. This function takes in an http status code of type `Int` and a block object that should be called, if we receive the given status code. So we must save these block objects and their corresponding status codes in some sort of a dictionary where the keys to this dictionary are the status codes as `Int` and the values are the block objects. Here is that variable in our class. Put this on top of the class:
+
+	```swift
+	private lazy var httpCodeHandlers: [Int : Block] = {
+	  return [Int : Block]()
+	}()
+	```
+	and then let's code the method:
+	
+	```swift
+	func onHttpCode(code: Int, handler: Block) -> Self{
+	  httpCodeHandlers[code] = handler
+	  return self
+	}
+	```
+	
+2. Then let's code the `onUnhandledHttpCode()` function. This function takes in a closure of type `Block` which we have already defined before, and will call this closure whenever an http status code which we have not handled yet is called. Let's keep a reference to this closure in a variable. So put this variable on top of your class:
+
+	```swift
+	private var unhandledHttpCodeHandler : Block?
+	```
+	
+	and then code the method itself:
+	
+	```swift
+	func onUnhandledHttpCode(handler: Block) -> Self{
+	  unhandledHttpCodeHandler = handler
+	  return self
+	}
+	```
+	
+	note how the variable is optional? this means that we may or may not have a block for unhandled http status codes.
+	
+3. It's time to implement the `setHttpBody()` function. This will just keep a reference to an object of type `NSData` to be sent to the server as part of the body of the request. So keep this in a varibale. Put this on top of your class code:
+
+	```swift
+	private var httpBody: NSData?
+	```
+	
+	and then code the method:
+	
+	```swift
+	func setHttpBody(body: NSData) -> Self{
+	  httpBody = body
+	  return self
+	}
+	```
+
+	
+
 
 
 

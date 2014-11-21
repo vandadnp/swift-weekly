@@ -10,9 +10,9 @@ import UIKit
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
-
+  
   var window: UIWindow?
-
+  
   func example1(){
     
     let builder = NameBuilder()
@@ -30,31 +30,31 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   
   func example3(){
     
-FluentUrlConnection(urlStr: "http://vandadnp.wordpress.com")
-  .ofType(.GET)
-  .acceptGzip()
-  .setHttpBody("hello world")
-  .setHttpHeader(value: "Accept", forKey: "application/json")
-  .onHttpCode(200, handler: { (sender: FluentUrlConnection) -> () in
+    FluentUrlConnection(urlStr: "http://vandadnp.wordpress.com")
+      .ofType(.GET)
+      .acceptGzip()
+      .setHttpBody("hello world")
+      .setHttpHeader(value: "Accept", forKey: "application/json")
+      .onHttpCode(200, handler: { (sender: FluentUrlConnection) -> () in
+        
+      })
+      .onHttpCode(401, handler: { (sender: FluentUrlConnection) -> () in
+        
+      })
+      .onUnhandledHttpCode { (sender: FluentUrlConnection) -> () in
+        
+      }
+      .onConnectionSuccess { (sender: FluentUrlConnection) -> () in
+        
+      }
+      .onConnectionFailure { (sender: FluentUrlConnection) -> () in
+        
+      }
+      .start()
     
-  })
-  .onHttpCode(401, handler: { (sender: FluentUrlConnection) -> () in
-    
-  })
-  .onUnhandledHttpCode { (sender: FluentUrlConnection) -> () in
     
   }
-  .onConnectionSuccess { (sender: FluentUrlConnection) -> () in
-    
-  }
-  .onConnectionFailure { (sender: FluentUrlConnection) -> () in
-    
-  }
-  .start()
-    
-    
-  }
-
+  
   func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
     
     example2()
@@ -62,6 +62,6 @@ FluentUrlConnection(urlStr: "http://vandadnp.wordpress.com")
     
     return true
   }
-
+  
 }
 
