@@ -103,7 +103,7 @@ Stopping
 ```
 freaking amazing, right? Did the coin drop? awesome. Let's move on. I want let you know that if you have a method in your Swift code that returns `Void`, please change it so that it returns `Self`. No harm done if you don't use the return value, at least your code will be fluent.
 
-Creating a FluentUrlConnection Class to Replace `NSURLConnection`
+Creating a Fluent Url Connection Class to Replace `NSURLConnection`
 ===
 I loved `NSURLConnection` before I got into fluent interfaces. I think this class has so much potential and Apple wasted it by returning `void` from many of the methods. This is just unacceptable. I was at work the other day and I realized that every time I do a call with `NSURLConnection` I have to do so much boiler plate:
 
@@ -434,7 +434,63 @@ Now time to implement this class, don't you agree?
 	3. As soon as we get the response, data and the error, we save them in our url connection instance so that the programmer that uses our class can read them too if he wants to.
 	4. Then we go through our http code handlers and find the one that corresponds with the current http code and then call it if it exists. If the status code was not handled and we had a 		block object to execute in the case of unhandled-http-code, then we call that block.
 
-I have packaged this class up in my [open-source Swift library which is called Chorizo, under the name of `ChorizoProUrlConnection`. Check it out](https://github.com/vandadnp/chorizo). Have a look at that for more information and inspirations/ideas.
+So now if I want to for instance get the contents of a website with the `GET` method I can just do this:
+
+```swift
+FluentUrlConnection(urlStr: "http://vandadnp.wordpress.com")
+  .ofType(.GET)
+  .acceptGzip()
+  .onConnectionSuccess { (sender: FluentUrlConnection) -> () in
+    
+    if let data = sender.connectionData{
+      println("Got data = \(data)")
+    }
+    
+  }
+  .onConnectionFailure { (sender: FluentUrlConnection) -> () in
+    println("Failed. \(sender.connectionError)")
+  }
+  .start()
+```
+
+So awesome, at least I think so. Much clearner than the NSURLConnection equivalent of convoluted `if` statements and useless `NSURL` constructions:
+
+Here is the same code but with pure `NSURLConnection`. Kinda disgusting:
+
+```swift
+let url = NSURL(string: "http://vandadnp.wordpress.com")!
+let request = NSMutableURLRequest(URL: url)
+request.allHTTPHeaderFields = ["Accept-Encoding" : "gzip"]
+let queue = NSOperationQueue()
+
+NSURLConnection.sendAsynchronousRequest(request, queue: queue) { (response: NSURLResponse!, data: NSData!, error: NSError!) -> Void in
+  
+  if error != nil{
+    println("Error = \(error)")
+  } else {
+    
+    // success
+    
+    if let httpResponse = response as? NSHTTPURLResponse{
+      
+      if (httpResponse == 200){
+        
+      } else {
+        
+      }
+      
+      if data != nil{
+        // do something
+      }
+      
+    }
+    
+  }
+  
+}
+```
+
+I have packaged this class up in my [open-source Swift library which is called Chorizo, under the name of `ChorizoProUrlConnection`. Check it out](https://github.com/vandadnp/chorizo). Have a look at that for more information and inspirations/ideas. I have also put the code inside the `exampleCode` folder of this folder in this repo so that's another way of getting the whole code for this class.
 
 
 
@@ -444,6 +500,7 @@ Conclusion
 2. In a fluent interface, when a functionality is turned off by default (`false`), do not enable this functionality through a property. Rather, create a method that returns `Self` and allows the programmer to enable the functionality. This allows for a fluent interface rather than `obj.property = value` type of old fashioned OOP programming.
 3. Fluent interfaces created in the right way eliminate the need of creating a variable pointing to the original object. The object is passed to the completion blocks whenever needed.
 4. Fluent interfaces mixed with the Builder pattern allow a class or a structure to Swift to encapsulate its own work within itself, and only expose logical listeners/handlers to the outside world, cutting the workd of the programmer that uses your APIs in half, getting rid of clutter and repetition in their code, getting rid of `if` statements and whatnot.
+5. One of the benefits of the Builder pattern is that the class that is the builder can be passed from one function to another, one by one completing the building process. One function can call a specific method on the same builder to complete a specific task, pass the same builder to another function to continue building it until it is fully built.
 
 References
 ===

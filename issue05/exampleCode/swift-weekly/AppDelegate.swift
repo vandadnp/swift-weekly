@@ -40,8 +40,42 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
         
       }
+      .onConnectionFailure { (sender: FluentUrlConnection) -> () in
+        println("Failed. \(sender.connectionError)")
+      }
       .start()
     
+    
+let url = NSURL(string: "http://vandadnp.wordpress.com")!
+let request = NSMutableURLRequest(URL: url)
+request.allHTTPHeaderFields = ["Accept-Encoding" : "gzip"]
+let queue = NSOperationQueue()
+
+NSURLConnection.sendAsynchronousRequest(request, queue: queue) { (response: NSURLResponse!, data: NSData!, error: NSError!) -> Void in
+  
+  if error != nil{
+    println("Error = \(error)")
+  } else {
+    
+    // success
+    
+    if let httpResponse = response as? NSHTTPURLResponse{
+      
+      if (httpResponse == 200){
+        
+      } else {
+        
+      }
+      
+      if data != nil{
+        // do something
+      }
+      
+    }
+    
+  }
+  
+}
     
   }
   
