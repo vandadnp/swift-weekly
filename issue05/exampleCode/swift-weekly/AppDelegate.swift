@@ -33,21 +33,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     FluentUrlConnection(urlStr: "http://vandadnp.wordpress.com")
       .ofType(.GET)
       .acceptGzip()
-      .setHttpBody("hello world")
-      .setHttpHeader(value: "Accept", forKey: "application/json")
-      .onHttpCode(200, handler: { (sender: FluentUrlConnection) -> () in
-        
-      })
-      .onHttpCode(401, handler: { (sender: FluentUrlConnection) -> () in
-        
-      })
-      .onUnhandledHttpCode { (sender: FluentUrlConnection) -> () in
-        
-      }
       .onConnectionSuccess { (sender: FluentUrlConnection) -> () in
         
-      }
-      .onConnectionFailure { (sender: FluentUrlConnection) -> () in
+        if let data = sender.connectionData{
+          println("Got data = \(data)")
+        }
         
       }
       .start()
@@ -57,7 +47,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   
   func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
     
-    example2()
+    example3()
     
     
     return true

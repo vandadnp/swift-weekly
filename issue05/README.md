@@ -281,9 +281,160 @@ Now time to implement this class, don't you agree?
 	  return self
 	}
 	```
-
 	
+	Keep in mind that we had an overloaded version of the `setHttpBody()` function that took in a raw string. Yeah, damn right. About time we stopped with rigidity in our code. Why just 	take in a freaking `NSURL` if you know most developers just have the `String` version of the `NSURL`?
 
+4. How about the `setHttpHeader()` function now. For this, we need a dictionary that can keep track of the given header keys and values. Let's make this lazily allocated because we may not even use it eventually:
+
+	```swift
+	private lazy var httpHeaders: [String : String] = {
+	  return [String : String]()
+	}()
+	```
+	
+	and then method itself of course:
+	
+	```swift
+	func setHttpHeader(#value: String, forKey: String) -> Self{
+	  httpHeaders[forKey] = value
+	  return self
+	}
+	```
+	
+	__Note__: I'm going to differ the implementation of the `start()` function for later as that's the biggest function of this class.
+
+5. The `onConnectionSuccess()` function is next up. This just keeps a reference to a block to be called if the connection doesn't give us an error back. Let's create a variable for this block object. Put this on top of your class:
+
+	```swift
+	private var connectionSuccessHandler: Block?
+	```
+
+	and then implement the method:
+
+	```swift
+	func onConnectionSuccess(handler: Block) -> Self{
+	  connectionSuccessHandler = handler
+	  return self
+	}
+	```
+
+6. Do the same for the `onConnectionFailure()` function. This function keeps a reference to a block object to be called if the connection comes back with an error. Let's start with the reference variable:
+
+	```swift
+	private var connectionFailureHanlder: Block?
+	```
+
+	and then the function implementation:
+
+	```swift
+	func onConnectionFailure(handler: Block) -> Self{
+	  connectionFailureHanlder = handler
+	  return self
+	}
+	```
+	
+7. We also need to implement the `acceptGzip()` function. This function simply switches our variable on. Put the variable on top of the class:
+
+	```swift
+	private var acceptsGzip = false
+	```
+
+	and then implement the function
+
+	```swift
+	func acceptGzip() -> Self{
+	  acceptsGzip = true
+	  return self
+	}
+	```
+
+8. And now the implementation of the mother of them all... the `start()` function. This function has to put everything together that we have done so far and then do the actual creation of the `NSURLConnection`:
+
+	```swift
+	//this attaches "gzip" to the end of the "Accept-Encoding" key of the httpHeaders if gzip encoding is enabled
+	private func handleGzipFlag(){
+	  if acceptsGzip{
+	    var acceptEncodingKey = "Accept-Encoding"
+	    var acceptEncodingValue = "gzip"
+	    
+	    for (key, value) in httpHeaders{
+	      if key == acceptEncodingKey{
+	        acceptEncodingValue += ", " + value
+	      }
+	    }
+	    httpHeaders[acceptEncodingKey] = acceptEncodingValue
+	  }
+	}
+
+
+
+	func start() -> Self{
+	  
+	  handleGzipFlag()
+	  
+	  let request = NSMutableURLRequest(URL: url)
+	  request.HTTPBody = httpBody
+	  request.HTTPMethod = type.rawValue
+	  request.allHTTPHeaderFields = httpHeaders
+	  
+	  NSURLConnection.sendAsynchronousRequest(request, queue: NSOperationQueue()) {(response: NSURLResponse!, data: NSData!, error: NSError!) -> Void in
+	    
+	    dispatch_async(dispatch_get_main_queue(), { () -> Void in
+	      self.connectionData = data
+	      self.connectionError = error
+	      self.connectionResponse = response
+	      
+	      if (error != nil){
+	        //an error happened
+	        if let errorHandler = self.connectionFailureHanlder{
+	          errorHandler(sender: self)
+	        }
+	      } else {
+	        
+	        //we succeeded, let the listener know
+	        if let successHandler = self.connectionSuccessHandler{
+	          successHandler(sender: self)
+	        }
+	        
+	        //now see if we have a real http url response so that we can get the http code out of it
+	        if let httpResponse = response as? NSHTTPURLResponse{
+	          
+	          var httpCodeIsHandled = false
+	          let statusCode = httpResponse.statusCode
+	          let handler = self.httpCodeHandlers[statusCode]
+	          
+	          if let handler = handler{
+	            httpCodeIsHandled = true
+	            handler(sender: self)
+	          }
+	          
+	          if !httpCodeIsHandled{
+	            if let unhandledCodeBlock = self.unhandledHttpCodeHandler{
+	              unhandledCodeBlock(sender: self)
+	            }
+	          }
+	          
+	        }
+	        
+	      }
+	      
+	      
+	    })
+	    
+	  }
+	  
+	  return self
+	}
+	```
+	
+	I've written some comments so that hopefully we will understand what is going on here. but I will explain:
+	
+	1. First we have the `handleGzipFlag()` function that goes through the http headers that we are given and if we want to enable gzip, it adds the string of `"gzip"` to the end of the 		header with the key of "Accept-Encoding". You can [read more about that on W3.org](http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html).
+	2. The `start()` function then uses `NSURLConnection` in the usual manner to send an __asynchronous__ request to the server.
+	3. As soon as we get the response, data and the error, we save them in our url connection instance so that the programmer that uses our class can read them too if he wants to.
+	4. Then we go through our http code handlers and find the one that corresponds with the current http code and then call it if it exists. If the status code was not handled and we had a 		block object to execute in the case of unhandled-http-code, then we call that block.
+
+I have packaged this class up in my [open-source Swift library which is called Chorizo, under the name of `ChorizoProUrlConnection`. Check it out.](https://github.com/vandadnp/chorizo). Have a look at that for more information and inspirations/ideas.
 
 
 
@@ -297,3 +448,4 @@ References
 ===
 1. [Builder pattern](http://en.wikipedia.org/wiki/Builder_pattern)
 2. [Fluent interfaces](http://en.wikipedia.org/wiki/Fluent_interface)
+3. [14 Header Field Definitions](http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html)

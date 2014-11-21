@@ -10,6 +10,8 @@
 	<string>swift-weekly</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
+		<key>14310FA515A9784EE5F380F35674A8A376BD3967</key>
+		<string>github.com:vandadnp/chorizo.git</string>
 		<key>E94A170A65EDFE8DA707E7E6CDF20E24A328FC93</key>
 		<string>github.com:vandadnp/swift-weekly.git</string>
 	</dict>
@@ -17,6 +19,8 @@
 	<string>issue05/exampleCode/swift-weekly.xcodeproj</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
+		<key>14310FA515A9784EE5F380F35674A8A376BD3967</key>
+		<string>../../../../../chorizo</string>
 		<key>E94A170A65EDFE8DA707E7E6CDF20E24A328FC93</key>
 		<string>../../../..</string>
 	</dict>
@@ -28,6 +32,14 @@
 	<string>E94A170A65EDFE8DA707E7E6CDF20E24A328FC93</string>
 	<key>IDESourceControlProjectWCConfigurations</key>
 	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>14310FA515A9784EE5F380F35674A8A376BD3967</string>
+			<key>IDESourceControlWCCName</key>
+			<string>chorizo</string>
+		</dict>
 		<dict>
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
 			<string>public.vcs.git</string>
