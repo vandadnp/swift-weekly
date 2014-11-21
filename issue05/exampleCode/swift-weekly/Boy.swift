@@ -1,0 +1,33 @@
+//
+//  Boy.swift
+//  swift-weekly
+//
+//  Created by Vandad NP on 11/21/14.
+//  Copyright (c) 2014 Pixolity Ltd. All rights reserved.
+//
+
+import Foundation
+
+class Boy{
+  
+  func jump() -> Self{
+    println("Jumping...")
+    return self
+  }
+  
+  func run() -> Self{
+    println("Running...")
+    return self
+  }
+  
+  func restFor(seconds: Int) -> Self{
+    println("Resting for \(seconds) seconds")
+    return self
+  }
+  
+  func stop() -> Self{
+    println("Stopping")
+    return self
+  }
+  
+}
