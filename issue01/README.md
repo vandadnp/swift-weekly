@@ -72,7 +72,7 @@ var fooPtr = UnsafeMutablePointer<Person>.alloc(1)
 fooPtr.initialize(Person(firstName: "Vandad", lastName: "Nahavandipoor"))
 fooPtr.memory.firstName // will print "Vandad"
 // change the last name
-fooPtr.memory.lastName = “Lastname"
+fooPtr.memory.lastName = "Lastname"
 ```
 
 Working with Pointers in Cocoa Touch
