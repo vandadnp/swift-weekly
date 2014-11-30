@@ -58,8 +58,6 @@ lea        rdi, qword [ss:rbp+var_10]
 call       __TTSSi_VSs7_StdoutS_Ss16OutputStreamType___TFSs5printU_Ss16OutputStreamType__FTQ_RQ0__T_
 mov        edi, 0xa          ; argument #1 for method imp___stubs__putchar
 call       imp___stubs__putchar
-xor        edi, edi
-call       imp___stubs__swift_unknownRelease
 mov        rdi, rbx
 add        rsp, 0x8
 pop        rbx
@@ -76,12 +74,31 @@ Well, this is a crap load of code. What is happening here? Let me explain:
 	mov        qword [ss:rbp+var_10], 0x1579bdf5
 	lea        rdi, qword [ss:rbp+var_10]
 	```
-	and you can do the maths yourself if you want or [use Calc.app on your mac to find the results](http://d.pr/i/18viW/20JMe185)
+	and you can do the maths yourself if you want or [use Calc.app on your mac to find the results](http://d.pr/i/18viW/20JMe185+)
 	
+3. the `imp___stubs__putchar` internal function is then called to do the `println()` for us.
+4. The stack is put back together ready to return to the caller.
+
+Well this was really easy. This tells me that the compiler noticed that we called this generic function only once so didn't feel the need to make it a real function. How about if we call this function a few times? Let's see:
+
+```swift
+func example2(){
+  
+  var a = 0
+  for _ in 0..<10{
+    add(a, randomInt())
+  }
+  
+}
+```
+
+and the results will come out like so:
+
+
 
 Conclusion
 ===
-1. 
+1. For very simple `add` generic functions for the `IntegerType` protocol, the compiler does the addition of the integers at compile-time and puts the results directly into the code segment. No `add` function will be written in the code as such.
 
 References
 ===

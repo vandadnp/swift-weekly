@@ -27,4 +27,13 @@ class Test{
     
   }
   
+func example2(){
+  
+  var a = 0
+  for _ in 0..<10{
+    add(a, randomInt())
+  }
+  
+}
+  
 }
