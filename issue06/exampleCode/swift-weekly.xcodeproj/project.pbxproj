@@ -13,6 +13,7 @@
 		9D3BFDDF1A2B985800D73E21 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9D3BFDDE1A2B985800D73E21 /* Images.xcassets */; };
 		9D3BFDE21A2B985800D73E21 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9D3BFDE01A2B985800D73E21 /* LaunchScreen.xib */; };
 		9D3BFDEE1A2B985800D73E21 /* swift_weeklyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D3BFDED1A2B985800D73E21 /* swift_weeklyTests.swift */; };
+		9D3BFDF81A2BA4EC00D73E21 /* Test.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D3BFDF71A2BA4EC00D73E21 /* Test.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -36,6 +37,7 @@
 		9D3BFDE71A2B985800D73E21 /* swift-weeklyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "swift-weeklyTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9D3BFDEC1A2B985800D73E21 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9D3BFDED1A2B985800D73E21 /* swift_weeklyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = swift_weeklyTests.swift; sourceTree = "<group>"; };
+		9D3BFDF71A2BA4EC00D73E21 /* Test.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Test.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -83,6 +85,7 @@
 				9D3BFDDE1A2B985800D73E21 /* Images.xcassets */,
 				9D3BFDE01A2B985800D73E21 /* LaunchScreen.xib */,
 				9D3BFDD51A2B985800D73E21 /* Supporting Files */,
+				9D3BFDF71A2BA4EC00D73E21 /* Test.swift */,
 			);
 			path = "swift-weekly";
 			sourceTree = "<group>";
@@ -214,6 +217,7 @@
 			files = (
 				9D3BFDDA1A2B985800D73E21 /* ViewController.swift in Sources */,
 				9D3BFDD81A2B985800D73E21 /* AppDelegate.swift in Sources */,
+				9D3BFDF81A2BA4EC00D73E21 /* Test.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -407,6 +411,7 @@
 				9D3BFDF31A2B985800D73E21 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		9D3BFDF41A2B985800D73E21 /* Build configuration list for PBXNativeTarget "swift-weeklyTests" */ = {
 			isa = XCConfigurationList;
@@ -415,6 +420,7 @@
 				9D3BFDF61A2B985800D73E21 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
