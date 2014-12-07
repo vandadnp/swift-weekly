@@ -638,7 +638,7 @@ Here is a breakdown of what the code is doing:
 
 4. If you look at the code, you will realize what the Swift compiler has done. It has noticed that the code for the generic function of `moreComplextGenericFunction()` is actually quite long so it has done what it did before, that is to say that it brought the code in-line, however, it did not write the same code `N` times. It created conditional jumps around it so that the code is inline but not repeated. This is quite clever.
 
-A simple Generic Type
+A Simple Generic Type
 ===
 I am going to define a simple type like so:
 
@@ -867,7 +867,207 @@ there is a chunk of the output asm code that I have no idea (as of yet) about:
 
 I can see a lot of logical and arithmatic shift operations to the left and right all, and I see a `sar` instruction shifting the `rcx` register to the right 3 bits. Shiting a register to the right 3 bits is the fastest way for a compiler to divide a value by 8. If you shift right by 1 bit, you divide by 2, shift twice you divide by 4 and 3 bits divides by 8. If you know what this code is doing, please send a pull request so that everybody else will get to learn.
 
+Generic Extensions
+===
+So yeah, generic extensions are a thing also! Here is one:
 
+```swift
+extension Finder{
+  func isAtEndOfArray(item: T) -> Bool{
+    if let last = array.last{
+      //this 0xabcdefa is placed here so that we can find this code easier in the output assembly
+      if last == item && randomInt() == 0xabcdefa{
+        return true
+      }
+    }
+    return false
+  }
+}
+```
+
+And I'll start using it like so:
+
+```swift
+func example5(){
+  let int1 = 0xabcdefa
+  let int2 = 0xabcdefb
+  let array = [int1, int2]
+  if Finder<Int>(array: array, item: int1).isAtEndOfArray(int2){
+    println("Found int1 at the end of array")
+  } else {
+    println("Could not find int2 at the end of array")
+  }
+}
+```
+
+here is the output assembly:
+
+```asm
+0000000100003a50   push       rbp
+0000000100003a51   mov        rbp, rsp
+0000000100003a54   push       r15
+0000000100003a56   push       r14
+0000000100003a58   push       r12
+0000000100003a5a   push       rbx
+0000000100003a5b   sub        rsp, 0x40
+0000000100003a5f   mov        r14, rdi
+0000000100003a62   lea        rdi, qword [ds:0x10001b330]                 ; 0x10001b330 (_metadata2 + 0x10)
+0000000100003a69   mov        esi, 0x28
+0000000100003a6e   mov        edx, 0x7
+0000000100003a73   call       imp___stubs__swift_allocObject
+0000000100003a78   mov        r15, rax
+0000000100003a7b   mov        qword [ds:r15+0x10], 0x2
+0000000100003a83   mov        qword [ds:r15+0x18], 0xabcdefa
+0000000100003a8b   mov        qword [ds:r15+0x20], 0xabcdefb
+0000000100003a93   mov        rdi, qword [ds:__TMLGCSs23_ContiguousArrayStorageSi_] ; __TMLGCSs23_ContiguousArrayStorageSi_
+0000000100003a9a   test       rdi, rdi
+0000000100003a9d   jne        0x100003ac0
+
+0000000100003a9f   mov        rsi, qword [ds:imp___got___TMdSi]           ; imp___got___TMdSi
+0000000100003aa6   add        rsi, 0x8
+0000000100003aaa   mov        rdi, qword [ds:imp___got___TMPdCSs23_ContiguousArrayStorage] ; imp___got___TMPdCSs23_ContiguousArrayStorage
+0000000100003ab1   call       imp___stubs__swift_getGenericMetadata1
+0000000100003ab6   mov        rdi, rax
+0000000100003ab9   mov        qword [ds:__TMLGCSs23_ContiguousArrayStorageSi_], rdi ; __TMLGCSs23_ContiguousArrayStorageSi_
+
+0000000100003ac0   mov        esi, 0x30                                   ; XREF=__TFC12swift_weekly4Test8example5fS0_FT_T_+77
+0000000100003ac5   mov        edx, 0x7
+0000000100003aca   call       imp___stubs__swift_bufferAllocate
+0000000100003acf   mov        rbx, rax
+0000000100003ad2   mov        qword [ds:rbx+0x18], 0x0
+0000000100003ada   mov        qword [ds:rbx+0x10], 0x0
+0000000100003ae2   mov        rdi, rbx                                    ; argument "ptr" for method imp___stubs__malloc_size
+0000000100003ae5   call       imp___stubs__malloc_size
+0000000100003aea   sub        rax, 0x20
+0000000100003aee   jo         0x100003c3b
+
+0000000100003af4   cmp        rax, 0xfffffffffffffff9
+0000000100003af8   jl         0x100003c3b
+
+0000000100003afe   mov        rcx, rax
+0000000100003b01   sar        rcx, 0x3f
+0000000100003b05   shr        rcx, 0x3d
+0000000100003b09   add        rcx, rax
+0000000100003b0c   sar        rcx, 0x3
+0000000100003b10   add        rcx, rcx
+0000000100003b13   mov        qword [ds:rbx+0x10], 0x2
+0000000100003b1b   mov        qword [ds:rbx+0x18], rcx
+0000000100003b1f   mov        rax, qword [ds:r15+0x18]
+0000000100003b23   mov        qword [ds:rbx+0x20], rax
+0000000100003b27   mov        rax, qword [ds:r15+0x20]
+0000000100003b2b   mov        qword [ds:rbx+0x28], rax
+0000000100003b2f   mov        qword [ss:rbp+var_28], r15
+0000000100003b33   lea        rdi, qword [ss:rbp+var_28]
+0000000100003b37   call       imp___stubs__swift_fixLifetime
+0000000100003b3c   mov        rdi, qword [ss:rbp+var_28]
+0000000100003b40   call       imp___stubs__swift_release
+0000000100003b45   test       rbx, rbx
+0000000100003b48   je         0x100003bd7
+
+0000000100003b4e   mov        r12, qword [ds:rbx+0x10]
+0000000100003b52   mov        rdi, rbx
+0000000100003b55   call       imp___stubs__swift_retain
+0000000100003b5a   mov        r15, rax
+0000000100003b5d   test       r12, r12
+0000000100003b60   je         0x100003bf2
+
+0000000100003b66   mov        rax, 0x7fffffffffffffff
+0000000100003b70   lea        rcx, qword [ds:rax+0x1]
+0000000100003b74   cmp        r12, rcx
+0000000100003b77   je         0x100003c3b
+
+0000000100003b7d   mov        rcx, r12
+0000000100003b80   dec        rcx
+0000000100003b83   js         0x100003c3b
+
+0000000100003b89   cmp        rcx, rax
+0000000100003b8c   je         0x100003c3b
+
+0000000100003b92   cmp        qword [ds:rbx+r12*8+0x18], 0xabcdefb
+0000000100003b9b   jne        0x100003bf2
+
+0000000100003b9d   mov        edi, 0xffffffff                             ; argument "upper_bound" for method imp___stubs__arc4random_uniform
+0000000100003ba2   call       imp___stubs__arc4random_uniform
+0000000100003ba7   cmp        eax, 0xabcdefa
+0000000100003bac   jne        0x100003bf2
+
+0000000100003bae   mov        rdi, r15
+0000000100003bb1   call       imp___stubs__swift_release
+0000000100003bb6   lea        rax, qword [ds:___unnamed_3_100019560]      ; "Found int1 at the end of array"
+0000000100003bbd   mov        qword [ss:rbp+var_40], rax
+0000000100003bc1   mov        qword [ss:rbp+var_38], 0x1e
+0000000100003bc9   mov        qword [ss:rbp+var_30], 0x0
+0000000100003bd1   lea        rdi, qword [ss:rbp+var_40]
+0000000100003bd5   jmp        0x100003c19
+
+0000000100003bd7   mov        rdi, rbx                                    ; XREF=__TFC12swift_weekly4Test8example5fS0_FT_T_+248
+0000000100003bda   call       imp___stubs__swift_retain
+0000000100003bdf   mov        rdi, rax
+0000000100003be2   call       imp___stubs__swift_retain
+0000000100003be7   mov        rdi, rax
+0000000100003bea   call       imp___stubs__swift_retain
+0000000100003bef   mov        r15, rax
+
+0000000100003bf2   mov        rdi, r15                                    ; XREF=__TFC12swift_weekly4Test8example5fS0_FT_T_+272, __TFC12swift_weekly4Test8example5fS0_FT_T_+331,
+0000000100003bf5   call       imp___stubs__swift_release
+0000000100003bfa   lea        rax, qword [ds:___unnamed_4_100019580]      ; "Could not find int2 at the end of array"
+0000000100003c01   mov        qword [ss:rbp+var_58], rax
+0000000100003c05   mov        qword [ss:rbp+var_50], 0x27
+0000000100003c0d   mov        qword [ss:rbp+var_48], 0x0
+0000000100003c15   lea        rdi, qword [ss:rbp+var_58]
+
+0000000100003c19   call       __TTSSS___TFSs7printlnU__FQ_T_              ; XREF=__TFC12swift_weekly4Test8example5fS0_FT_T_+389
+0000000100003c1e   mov        rdi, r15
+0000000100003c21   call       imp___stubs__swift_release
+0000000100003c26   mov        rdi, r14
+0000000100003c29   call       imp___stubs__swift_release
+0000000100003c2e   add        rsp, 0x40
+0000000100003c32   pop        rbx
+0000000100003c33   pop        r12
+0000000100003c35   pop        r14
+0000000100003c37   pop        r15
+0000000100003c39   pop        rbp
+0000000100003c3a   ret        
+
+0000000100003c3b   ud2
+0000000100003c3d   nop        qword [ds:rax]
+                   	__TFC12swift_weekly4Testd:
+0000000100003c40   push       rbp
+0000000100003c41   mov        rbp, rsp
+0000000100003c44   mov        rax, rdi
+0000000100003c47   pop        rbp
+0000000100003c48   ret        
+                    endp
+0000000100003c49   nop        qword [ds:rax+0x0]
+```
+
+here is the breakdown of the code, with my focus being on the generic-related side of the generated code. I will also not go through the stuff that I've said before so here is the new stuff:
+
+1. Our array is allocated with the `imp___stubs__swift_bufferAllocate` call. Mysterious! If you know about this function or its implementation, please send a pull request and complete this article.
+2. This part of our Swift code:
+
+	```swift
+	if let last = array.last{
+	 //this 0xabcdefa is placed here so that we can find this code easier in the output assembly
+	 if last == item && randomInt() == 0xabcdefa{
+	   return true
+	 }
+	}
+	```
+
+	is translated to this asm code:
+
+	```asm
+	0000000100003b92   cmp        qword [ds:rbx+r12*8+0x18], 0xabcdefb
+	0000000100003b9b   jne        0x100003bf2
+
+	0000000100003b9d   mov        edi, 0xffffffff                             ; argument "upper_bound" for method imp___stubs__arc4random_uniform
+	0000000100003ba2   call       imp___stubs__arc4random_uniform
+	0000000100003ba7   cmp        eax, 0xabcdefa
+	0000000100003bac   jne        0x100003bf2
+	```
+
+	note how smart Swift's compiler is in this case. It has placed the value of `int2` which is `0xabcdefb` right into the code segment and then does the comparison right there. If that value matches the found 	value then it continues to the next section of our if statement which is the random integer value. If it matches the random integer with `0xabcdefb` (but this time as an inline value, not `int2`), then it 	finishes the loop and does a conditional jump statement.
 
 Conclusion
 ===
@@ -877,6 +1077,8 @@ Conclusion
 4. For more complext generic functions inside loops, the code __is__ brought inline like less complex generic functions however the conditional `jmp` instructions that are placed around the inlined function allow it to be inlined only once.
 5. Generic types, depending on their complexity, can also be brought inline. Swift, more often than not, brings generic code inline.
 6. For small or large constant arrays constructed inline, array values are inserted into the data segment in the opening lines of your function. This makes the code execute slower (than if the items were in the code segment) and accessed through general purpose registers, depending on how many items your array has.
+7. Swift's compiler generally prefers to place integer values right into the code segment if possible rather than storing them as `dq` or `dd` values in the data segment. That saves it time in execution at the cost of more complex output assembly, and longer lines of code on production applications.
+8. If you want to ensure that your code is as small as possible for production applications, I suggest playing a bit with the optimization levels in Swift's compiler so maybe for your app, the highest optimization level is not the best. At the time of this writing, there are only 2 optimiztion levels are available and none of them match "smallest code". So this is not an option unfortunately at this level. Swift is pretty much a baby right now so maybe in the future. We have to give it some time. Maybe in the next 3-4 years.
 
 References
 ===

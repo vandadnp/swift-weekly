@@ -47,11 +47,25 @@ struct Finder<T: Equatable>{
   }
 }
 
+extension Finder{
+  func isAtEndOfArray(item: T) -> Bool{
+    if let last = array.last{
+      //this 0xabcdefa is placed here so that we can find this code easier in the output assembly
+      if last == item && randomInt() == 0xabcdefa{
+        return true
+      }
+    }
+    return false
+  }
+}
+
+func randomInt() -> Int{
+  return Int(arc4random_uniform(UInt32.max))
+}
+
 class Test{
   
-  func randomInt() -> Int{
-    return Int(arc4random_uniform(UInt32.max))
-  }
+  
   
   func example1(){
     
@@ -88,6 +102,17 @@ class Test{
       println("Found int1 in array")
     } else {
       println("Could not find int1")
+    }
+  }
+  
+  func example5(){
+    let int1 = 0xabcdefa
+    let int2 = 0xabcdefb
+    let array = [int1, int2]
+    if Finder<Int>(array: array, item: int1).isAtEndOfArray(int2){
+      println("Found int1 at the end of array")
+    } else {
+      println("Could not find int2 at the end of array")
     }
   }
   
