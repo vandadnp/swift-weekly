@@ -7,9 +7,44 @@
 //
 
 import Foundation
+import UIKit
 
 func add<T: IntegerType>(l: T, r: T) -> T{
   return l + r
+}
+
+//make the function more complicated for the compiler to inline in a very silly way. the goal is to make the function longer
+func moreComplextGenericFunction<T: IntegerType>(l: T, r: T) -> T{
+  
+  if l > r{
+    UIViewController()
+    UIView()
+    UILabel()
+    UIButton()
+  }
+    
+  else{
+    UILabel()
+    UIButton()
+    UIViewController()
+    UIView()
+  }
+  
+  return 0
+  
+}
+
+struct Finder<T: Equatable>{
+  let array: [T]
+  let item: T
+  func isItemInArray() -> Bool{
+    for i in array{
+      if i == item{
+        return true
+      }
+    }
+    return false
+  }
 }
 
 class Test{
@@ -35,5 +70,26 @@ class Test{
     }
     
   }
+  
+  func example3(){
+    
+    var a = 0
+    for _ in 0..<randomInt(){
+      moreComplextGenericFunction(a, randomInt())
+    }
+    
+  }
+  
+func example4(){
+  let int1 = 0xabcdefa
+  let int2 = 0xabcdefb
+  let array = [int1, int2]
+  if Finder<Int>(array: array, item: int1).isItemInArray(){
+    println("Found int1 in array")
+  } else {
+    println("Could not find int1")
+  }
+}
+  
   
 }

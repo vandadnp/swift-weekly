@@ -298,10 +298,525 @@ Yes ladies and gents, you guessed it right. The compiler basically wrote the sam
 
 	If you know the anser to these two questions, please submit a pull request and correct this article.
 
+So the compiler generated the code for our generic function `10` times because we were looping that code `10` times. That makes me curious as to whether this is because it treated the generic function as an inline function because of its simplicity or not. So let's change that function to make it a bit more complicated and see if we get the same results:
+
+```swift
+//make the function more complicated for the compiler to inline in a very silly way. the goal is to make the function longer
+func moreComplextGenericFunction<T: IntegerType>(l: T, r: T) -> T{
+  
+  if l > r{
+    UIViewController()
+    UIView()
+    UILabel()
+    UIButton()
+  }
+  
+  else{
+    UILabel()
+    UIButton()
+    UIViewController()
+    UIView()
+  }
+  
+  return 0
+  
+}
+```
+
+and then I am going to go ahead and use this function in the same fashion as before:
+
+```swift
+func example3(){
+  
+  var a = 0
+  for _ in 0..<randomInt(){
+    moreComplextGenericFunction(a, randomInt())
+  }
+  
+}
+```
+
+note that I am setting the higher boundary of the loop to a random number that the compiler cannot/will not determine during compile time even though it could. So this will allow us to circumvent any smart tricks that the compiler may do in code generation (pre-determining the loop count and pasting code in the loop `N` times where `N` is the higher boundary of our loop), just so that we can really see how the compiler deals with generics, not loops. This is going to be a long chunk of asm code which I will do my best to break down so bear with me please:
+
+```asm
+00000001000025a0   push       rbp
+00000001000025a1   mov        rbp, rsp
+00000001000025a4   push       r15
+00000001000025a6   push       r14
+00000001000025a8   push       r13
+00000001000025aa   push       r12
+00000001000025ac   push       rbx
+00000001000025ad   push       rax
+00000001000025ae   mov        r14, rdi
+00000001000025b1   mov        rax, qword [ds:r14]
+00000001000025b4   lea        r13, qword [ds:objc_class__TtC12swift_weekly4Test] ; objc_class__TtC12swift_weekly4Test
+00000001000025bb   cmp        rax, r13
+00000001000025be   jne        0x1000025d3
+
+00000001000025c0   test       r14, r14
+00000001000025c3   je         0x1000025d3
+
+00000001000025c5   mov        edi, 0xffffffff                             ; argument #1 for method imp___stubs__arc4random_uniform
+00000001000025ca   call       imp___stubs__arc4random_uniform
+00000001000025cf   mov        ebx, eax
+00000001000025d1   jmp        0x1000025f0
+
+00000001000025d3   mov        rbx, qword [ds:rax+0x48]                    ; XREF=__TFC12swift_weekly4Test8example3fS0_FT_T_+30, __TFC12swift_weekly4Test8example3fS0_FT_T_+35
+00000001000025d7   mov        rdi, r14
+00000001000025da   call       imp___stubs__swift_retain
+00000001000025df   mov        rdi, r14
+00000001000025e2   call       rbx
+00000001000025e4   mov        rbx, rax
+00000001000025e7   test       rbx, rbx
+00000001000025ea   js         0x1000029ab
+
+00000001000025f0   test       rbx, rbx                                    ; XREF=__TFC12swift_weekly4Test8example3fS0_FT_T_+49
+00000001000025f3   mov        r15, r14
+00000001000025f6   je         0x100002995
+
+00000001000025fc   test       r14, r14
+00000001000025ff   je         0x1000027d8
+
+0000000100002605   mov        r15, r14
+0000000100002608   nop        qword [ds:rax+rax+0x0]
+
+0000000100002610   mov        rax, qword [ds:r14]                         ; XREF=__TFC12swift_weekly4Test8example3fS0_FT_T_+557
+0000000100002613   cmp        rax, r13
+0000000100002616   je         0x1000026f0
+
+000000010000261c   mov        r12, qword [ds:rax+0x48]
+0000000100002620   mov        rdi, r15
+0000000100002623   call       imp___stubs__swift_retain
+0000000100002628   mov        r15, rax
+000000010000262b   mov        rdi, r14
+000000010000262e   call       r12
+0000000100002631   test       rax, rax
+0000000100002634   jns        0x1000026fa
+
+000000010000263a   mov        rdi, qword [ds:imp___got__OBJC_CLASS_$_UIViewController] ; imp___got__OBJC_CLASS_$_UIViewController
+0000000100002641   call       imp___stubs__swift_getInitializedObjCClass
+0000000100002646   mov        rsi, qword [ds:0x100015fa8]                 ; @selector(allocWithZone:), argument "selector" for method imp___stubs__objc_msgSend
+000000010000264d   xor        edx, edx
+000000010000264f   mov        rdi, rax                                    ; argument "instance" for method imp___stubs__objc_msgSend
+0000000100002652   call       imp___stubs__objc_msgSend
+0000000100002657   mov        rsi, qword [ds:0x100015fb0]                 ; @selector(init), argument "selector" for method imp___stubs__objc_msgSend
+000000010000265e   mov        rdi, rax                                    ; argument "instance" for method imp___stubs__objc_msgSend
+0000000100002661   call       imp___stubs__objc_msgSend
+0000000100002666   mov        rdi, rax                                    ; argument "instance" for method imp___stubs__objc_release
+0000000100002669   call       imp___stubs__objc_release
+000000010000266e   mov        rdi, qword [ds:imp___got__OBJC_CLASS_$_UIView] ; imp___got__OBJC_CLASS_$_UIView
+0000000100002675   call       imp___stubs__swift_getInitializedObjCClass
+000000010000267a   mov        rsi, qword [ds:0x100015fa8]                 ; @selector(allocWithZone:), argument "selector" for method imp___stubs__objc_msgSend
+0000000100002681   xor        edx, edx
+0000000100002683   mov        rdi, rax                                    ; argument "instance" for method imp___stubs__objc_msgSend
+0000000100002686   call       imp___stubs__objc_msgSend
+000000010000268b   mov        rsi, qword [ds:0x100015fb0]                 ; @selector(init), argument "selector" for method imp___stubs__objc_msgSend
+0000000100002692   mov        rdi, rax                                    ; argument "instance" for method imp___stubs__objc_msgSend
+0000000100002695   call       imp___stubs__objc_msgSend
+000000010000269a   mov        rdi, rax                                    ; argument "instance" for method imp___stubs__objc_release
+000000010000269d   call       imp___stubs__objc_release
+00000001000026a2   mov        rdi, qword [ds:imp___got__OBJC_CLASS_$_UILabel] ; imp___got__OBJC_CLASS_$_UILabel
+00000001000026a9   call       imp___stubs__swift_getInitializedObjCClass
+00000001000026ae   mov        rsi, qword [ds:0x100015fa8]                 ; @selector(allocWithZone:), argument "selector" for method imp___stubs__objc_msgSend
+00000001000026b5   xor        edx, edx
+00000001000026b7   mov        rdi, rax                                    ; argument "instance" for method imp___stubs__objc_msgSend
+00000001000026ba   call       imp___stubs__objc_msgSend
+00000001000026bf   mov        rsi, qword [ds:0x100015fb0]                 ; @selector(init), argument "selector" for method imp___stubs__objc_msgSend
+00000001000026c6   mov        rdi, rax                                    ; argument "instance" for method imp___stubs__objc_msgSend
+00000001000026c9   call       imp___stubs__objc_msgSend
+00000001000026ce   mov        rdi, rax                                    ; argument "instance" for method imp___stubs__objc_release
+00000001000026d1   call       imp___stubs__objc_release
+00000001000026d6   mov        rdi, qword [ds:imp___got__OBJC_CLASS_$_UIButton] ; imp___got__OBJC_CLASS_$_UIButton
+00000001000026dd   jmp        0x10000279d
+00000001000026e2   nop        qword [cs:rax+rax+0x0]
+
+00000001000026f0   mov        edi, 0xffffffff                             ; argument #1 for method imp___stubs__arc4random_uniform, XREF=__TFC12swift_weekly4Test8example3fS0_FT_T_+118
+00000001000026f5   call       imp___stubs__arc4random_uniform
+
+00000001000026fa   mov        rdi, qword [ds:imp___got__OBJC_CLASS_$_UILabel] ; imp___got__OBJC_CLASS_$_UILabel, XREF=__TFC12swift_weekly4Test8example3fS0_FT_T_+148
+0000000100002701   call       imp___stubs__swift_getInitializedObjCClass
+0000000100002706   mov        rsi, qword [ds:0x100015fa8]                 ; @selector(allocWithZone:), argument "selector" for method imp___stubs__objc_msgSend
+000000010000270d   xor        edx, edx
+000000010000270f   mov        rdi, rax                                    ; argument "instance" for method imp___stubs__objc_msgSend
+0000000100002712   call       imp___stubs__objc_msgSend
+0000000100002717   mov        rsi, qword [ds:0x100015fb0]                 ; @selector(init), argument "selector" for method imp___stubs__objc_msgSend
+000000010000271e   mov        rdi, rax                                    ; argument "instance" for method imp___stubs__objc_msgSend
+0000000100002721   call       imp___stubs__objc_msgSend
+0000000100002726   mov        rdi, rax                                    ; argument "instance" for method imp___stubs__objc_release
+0000000100002729   call       imp___stubs__objc_release
+000000010000272e   mov        rdi, qword [ds:imp___got__OBJC_CLASS_$_UIButton] ; imp___got__OBJC_CLASS_$_UIButton
+0000000100002735   call       imp___stubs__swift_getInitializedObjCClass
+000000010000273a   mov        rsi, qword [ds:0x100015fa8]                 ; @selector(allocWithZone:), argument "selector" for method imp___stubs__objc_msgSend
+0000000100002741   xor        edx, edx
+0000000100002743   mov        rdi, rax                                    ; argument "instance" for method imp___stubs__objc_msgSend
+0000000100002746   call       imp___stubs__objc_msgSend
+000000010000274b   mov        rsi, qword [ds:0x100015fb0]                 ; @selector(init), argument "selector" for method imp___stubs__objc_msgSend
+0000000100002752   mov        rdi, rax                                    ; argument "instance" for method imp___stubs__objc_msgSend
+0000000100002755   call       imp___stubs__objc_msgSend
+000000010000275a   mov        rdi, rax                                    ; argument "instance" for method imp___stubs__objc_release
+000000010000275d   call       imp___stubs__objc_release
+0000000100002762   mov        rdi, qword [ds:imp___got__OBJC_CLASS_$_UIViewController] ; imp___got__OBJC_CLASS_$_UIViewController
+0000000100002769   call       imp___stubs__swift_getInitializedObjCClass
+000000010000276e   mov        rsi, qword [ds:0x100015fa8]                 ; @selector(allocWithZone:), argument "selector" for method imp___stubs__objc_msgSend
+0000000100002775   xor        edx, edx
+0000000100002777   mov        rdi, rax                                    ; argument "instance" for method imp___stubs__objc_msgSend
+000000010000277a   call       imp___stubs__objc_msgSend
+000000010000277f   mov        rsi, qword [ds:0x100015fb0]                 ; @selector(init), argument "selector" for method imp___stubs__objc_msgSend
+0000000100002786   mov        rdi, rax                                    ; argument "instance" for method imp___stubs__objc_msgSend
+0000000100002789   call       imp___stubs__objc_msgSend
+000000010000278e   mov        rdi, rax                                    ; argument "instance" for method imp___stubs__objc_release
+0000000100002791   call       imp___stubs__objc_release
+0000000100002796   mov        rdi, qword [ds:imp___got__OBJC_CLASS_$_UIView] ; imp___got__OBJC_CLASS_$_UIView
+
+000000010000279d   call       imp___stubs__swift_getInitializedObjCClass  ; XREF=__TFC12swift_weekly4Test8example3fS0_FT_T_+317
+00000001000027a2   mov        rsi, qword [ds:0x100015fa8]                 ; @selector(allocWithZone:), argument "selector" for method imp___stubs__objc_msgSend
+00000001000027a9   xor        edx, edx
+00000001000027ab   mov        rdi, rax                                    ; argument "instance" for method imp___stubs__objc_msgSend
+00000001000027ae   call       imp___stubs__objc_msgSend
+00000001000027b3   mov        rsi, qword [ds:0x100015fb0]                 ; @selector(init), argument "selector" for method imp___stubs__objc_msgSend
+00000001000027ba   mov        rdi, rax                                    ; argument "instance" for method imp___stubs__objc_msgSend
+00000001000027bd   call       imp___stubs__objc_msgSend
+00000001000027c2   mov        rdi, rax                                    ; argument "instance" for method imp___stubs__objc_release
+00000001000027c5   call       imp___stubs__objc_release
+00000001000027ca   dec        rbx
+00000001000027cd   jne        0x100002610
+
+00000001000027d3   jmp        0x100002995
+
+00000001000027d8   mov        r13, qword [ds:imp___got__OBJC_CLASS_$_UIButton] ; imp___got__OBJC_CLASS_$_UIButton, XREF=__TFC12swift_weekly4Test8example3fS0_FT_T_+95
+00000001000027df   mov        r15, r14
+00000001000027e2   nop        qword [cs:rax+rax+0x0]
+
+00000001000027f0   mov        rax, qword [ds:r14]                         ; XREF=__TFC12swift_weekly4Test8example3fS0_FT_T_+1007
+00000001000027f3   mov        r12, qword [ds:rax+0x48]
+00000001000027f7   mov        rdi, r15
+00000001000027fa   call       imp___stubs__swift_retain
+00000001000027ff   mov        r15, rax
+0000000100002802   xor        edi, edi
+0000000100002804   call       r12
+0000000100002807   test       rax, rax
+000000010000280a   js         0x1000028c0
+
+0000000100002810   mov        rdi, qword [ds:imp___got__OBJC_CLASS_$_UILabel] ; imp___got__OBJC_CLASS_$_UILabel
+0000000100002817   call       imp___stubs__swift_getInitializedObjCClass
+000000010000281c   mov        rsi, qword [ds:0x100015fa8]                 ; @selector(allocWithZone:), argument "selector" for method imp___stubs__objc_msgSend
+0000000100002823   xor        edx, edx
+0000000100002825   mov        rdi, rax                                    ; argument "instance" for method imp___stubs__objc_msgSend
+0000000100002828   call       imp___stubs__objc_msgSend
+000000010000282d   mov        rsi, qword [ds:0x100015fb0]                 ; @selector(init), argument "selector" for method imp___stubs__objc_msgSend
+0000000100002834   mov        rdi, rax                                    ; argument "instance" for method imp___stubs__objc_msgSend
+0000000100002837   call       imp___stubs__objc_msgSend
+000000010000283c   mov        rdi, rax                                    ; argument "instance" for method imp___stubs__objc_release
+000000010000283f   call       imp___stubs__objc_release
+0000000100002844   mov        rdi, r13
+0000000100002847   call       imp___stubs__swift_getInitializedObjCClass
+000000010000284c   mov        rsi, qword [ds:0x100015fa8]                 ; @selector(allocWithZone:), argument "selector" for method imp___stubs__objc_msgSend
+0000000100002853   xor        edx, edx
+0000000100002855   mov        rdi, rax                                    ; argument "instance" for method imp___stubs__objc_msgSend
+0000000100002858   call       imp___stubs__objc_msgSend
+000000010000285d   mov        rsi, qword [ds:0x100015fb0]                 ; @selector(init), argument "selector" for method imp___stubs__objc_msgSend
+0000000100002864   mov        rdi, rax                                    ; argument "instance" for method imp___stubs__objc_msgSend
+0000000100002867   call       imp___stubs__objc_msgSend
+000000010000286c   mov        rdi, rax                                    ; argument "instance" for method imp___stubs__objc_release
+000000010000286f   call       imp___stubs__objc_release
+0000000100002874   mov        rdi, qword [ds:imp___got__OBJC_CLASS_$_UIViewController] ; imp___got__OBJC_CLASS_$_UIViewController
+000000010000287b   call       imp___stubs__swift_getInitializedObjCClass
+0000000100002880   mov        rsi, qword [ds:0x100015fa8]                 ; @selector(allocWithZone:), argument "selector" for method imp___stubs__objc_msgSend
+0000000100002887   xor        edx, edx
+0000000100002889   mov        rdi, rax                                    ; argument "instance" for method imp___stubs__objc_msgSend
+000000010000288c   call       imp___stubs__objc_msgSend
+0000000100002891   mov        rsi, qword [ds:0x100015fb0]                 ; @selector(init), argument "selector" for method imp___stubs__objc_msgSend
+0000000100002898   mov        rdi, rax                                    ; argument "instance" for method imp___stubs__objc_msgSend
+000000010000289b   call       imp___stubs__objc_msgSend
+00000001000028a0   mov        rdi, rax                                    ; argument "instance" for method imp___stubs__objc_release
+00000001000028a3   call       imp___stubs__objc_release
+00000001000028a8   mov        rdi, qword [ds:imp___got__OBJC_CLASS_$_UIView] ; imp___got__OBJC_CLASS_$_UIView
+00000001000028af   jmp        0x10000295f
+00000001000028b4   nop        qword [cs:rax+rax+0x0]
+
+00000001000028c0   mov        rdi, qword [ds:imp___got__OBJC_CLASS_$_UIViewController] ; imp___got__OBJC_CLASS_$_UIViewController, XREF=__TFC12swift_weekly4Test8example3fS0_FT_T_+618
+00000001000028c7   call       imp___stubs__swift_getInitializedObjCClass
+00000001000028cc   mov        rsi, qword [ds:0x100015fa8]                 ; @selector(allocWithZone:), argument "selector" for method imp___stubs__objc_msgSend
+00000001000028d3   xor        edx, edx
+00000001000028d5   mov        rdi, rax                                    ; argument "instance" for method imp___stubs__objc_msgSend
+00000001000028d8   call       imp___stubs__objc_msgSend
+00000001000028dd   mov        rsi, qword [ds:0x100015fb0]                 ; @selector(init), argument "selector" for method imp___stubs__objc_msgSend
+00000001000028e4   mov        rdi, rax                                    ; argument "instance" for method imp___stubs__objc_msgSend
+00000001000028e7   call       imp___stubs__objc_msgSend
+00000001000028ec   mov        rdi, rax                                    ; argument "instance" for method imp___stubs__objc_release
+00000001000028ef   call       imp___stubs__objc_release
+00000001000028f4   mov        rdi, qword [ds:imp___got__OBJC_CLASS_$_UIView] ; imp___got__OBJC_CLASS_$_UIView
+00000001000028fb   call       imp___stubs__swift_getInitializedObjCClass
+0000000100002900   mov        rsi, qword [ds:0x100015fa8]                 ; @selector(allocWithZone:), argument "selector" for method imp___stubs__objc_msgSend
+0000000100002907   xor        edx, edx
+0000000100002909   mov        rdi, rax                                    ; argument "instance" for method imp___stubs__objc_msgSend
+000000010000290c   call       imp___stubs__objc_msgSend
+0000000100002911   mov        rsi, qword [ds:0x100015fb0]                 ; @selector(init), argument "selector" for method imp___stubs__objc_msgSend
+0000000100002918   mov        rdi, rax                                    ; argument "instance" for method imp___stubs__objc_msgSend
+000000010000291b   call       imp___stubs__objc_msgSend
+0000000100002920   mov        rdi, rax                                    ; argument "instance" for method imp___stubs__objc_release
+0000000100002923   call       imp___stubs__objc_release
+0000000100002928   mov        rdi, qword [ds:imp___got__OBJC_CLASS_$_UILabel] ; imp___got__OBJC_CLASS_$_UILabel
+000000010000292f   call       imp___stubs__swift_getInitializedObjCClass
+0000000100002934   mov        rsi, qword [ds:0x100015fa8]                 ; @selector(allocWithZone:), argument "selector" for method imp___stubs__objc_msgSend
+000000010000293b   xor        edx, edx
+000000010000293d   mov        rdi, rax                                    ; argument "instance" for method imp___stubs__objc_msgSend
+0000000100002940   call       imp___stubs__objc_msgSend
+0000000100002945   mov        rsi, qword [ds:0x100015fb0]                 ; @selector(init), argument "selector" for method imp___stubs__objc_msgSend
+000000010000294c   mov        rdi, rax                                    ; argument "instance" for method imp___stubs__objc_msgSend
+000000010000294f   call       imp___stubs__objc_msgSend
+0000000100002954   mov        rdi, rax                                    ; argument "instance" for method imp___stubs__objc_release
+0000000100002957   call       imp___stubs__objc_release
+000000010000295c   mov        rdi, r13
+
+000000010000295f   call       imp___stubs__swift_getInitializedObjCClass  ; XREF=__TFC12swift_weekly4Test8example3fS0_FT_T_+783
+0000000100002964   mov        rsi, qword [ds:0x100015fa8]                 ; @selector(allocWithZone:), argument "selector" for method imp___stubs__objc_msgSend
+000000010000296b   xor        edx, edx
+000000010000296d   mov        rdi, rax                                    ; argument "instance" for method imp___stubs__objc_msgSend
+0000000100002970   call       imp___stubs__objc_msgSend
+0000000100002975   mov        rsi, qword [ds:0x100015fb0]                 ; @selector(init), argument "selector" for method imp___stubs__objc_msgSend
+000000010000297c   mov        rdi, rax                                    ; argument "instance" for method imp___stubs__objc_msgSend
+000000010000297f   call       imp___stubs__objc_msgSend
+0000000100002984   mov        rdi, rax                                    ; argument "instance" for method imp___stubs__objc_release
+0000000100002987   call       imp___stubs__objc_release
+000000010000298c   dec        rbx
+000000010000298f   jne        0x1000027f0
+
+0000000100002995   mov        rdi, r15                                    ; XREF=__TFC12swift_weekly4Test8example3fS0_FT_T_+86, __TFC12swift_weekly4Test8example3fS0_FT_T_+563
+0000000100002998   add        rsp, 0x8
+000000010000299c   pop        rbx
+000000010000299d   pop        r12
+000000010000299f   pop        r13
+00000001000029a1   pop        r14
+00000001000029a3   pop        r15
+00000001000029a5   pop        rbp
+00000001000029a6   jmp        imp___stubs__swift_release
+
+00000001000029ab   ud2                                                    ; XREF=__TFC12swift_weekly4Test8example3fS0_FT_T_+74
+00000001000029ad   nop        qword [ds:rax]
+                   	__TFC12swift_weekly4Testd:
+00000001000029b0   push       rbp
+00000001000029b1   mov        rbp, rsp
+00000001000029b4   mov        rax, rdi
+00000001000029b7   pop        rbp
+00000001000029b8   ret        
+                   ; endp
+00000001000029b9   nop        qword [ds:rax+0x0]
+```
+
+I've left the code segment addresses intact to let you also have a look at how the conditional and unconfitional jump statements are working.
+
+Here is a breakdown of what the code is doing:
+
+1. The random number gets generated and placed inside the `ebx` 32-bit register:
+
+	```asm
+	00000001000025c5         mov        edi, 0xffffffff                             ; argument #1 for method imp___stubs__arc4random_uniform
+	00000001000025ca         call       imp___stubs__arc4random_uniform
+	00000001000025cf         mov        ebx, eax
+	00000001000025d1         jmp        0x1000025f0
+	```
+
+2. an unconditional `jmp` statement jumps to the following section of the code:
+
+	```asm
+	00000001000025f0         test       rbx, rbx                                    ; XREF=__TFC12swift_weekly4Test8example3fS0_FT_T_+49
+	00000001000025f3         mov        r15, r14
+	00000001000025f6         je         0x100002995
+	```
+
+	this is checking if the generated random number is `0` and if yes, it jumps over all the other code in the `example3()` function and straight to the end. So this is what we expect. 0 loops, 0 execution of the loop 	code.
+	
+3. Almost near the end of the code, you can see where the loop is happening:
+
+	```asm
+	000000010000298c         dec        rbx
+	000000010000298f         jne        0x1000027f0
+	```
+
+	It seems like Swift generally perfers to keep the integer counter inside a loop in the `ebx` register. If you have a loop that goes from `0` to `1000`, that number range that moves from `0` to `1000` is usually 	kept inside the `ebx` register. I have done some researching around the web and it seems like `ebx` or its 64-bit counterpart of `rbx` are just general purpose registers and they are not designated to be a counter 	as such. But it's good to know that Swift uses `ebx` usually for counters.
+
+4. If you look at the code, you will realize what the Swift compiler has done. It has noticed that the code for the generic function of `moreComplextGenericFunction()` is actually quite long so it has done what it did before, that is to say that it brought the code in-line, however, it did not write the same code `N` times. It created conditional jumps around it so that the code is inline but not repeated. This is quite clever.
+
+A simple Generic Type
+===
+I am going to define a simple type like so:
+
+```swift
+struct Finder<T: Equatable>{
+  let array: [T]
+  let item: T
+  func isItemInArray() -> Bool{
+    for i in array{
+      if i == item{
+        return true
+      }
+    }
+    return false
+  }
+}
+```
+
+I know already that there are tons of other ways to look for items in an array but this is to test generics. I am then going to use it:
+
+```swift
+func example4(){
+  let int1 = 0xabcdefa
+  let int2 = 0xabcdefb
+  let array = [int1, int2]
+  if Finder<Int>(array: array, item: int1).isItemInArray(){
+    println("Found int1 in array")
+  } else {
+    println("Could not find int1")
+  }
+}
+```
+
+let's see the output assembly code:
+
+```asm
+0000000100003170   push       rbp
+0000000100003171   mov        rbp, rsp
+0000000100003174   push       r15
+0000000100003176   push       r14
+0000000100003178   push       r12
+000000010000317a   push       rbx
+000000010000317b   sub        rsp, 0x40
+000000010000317f   mov        r14, rdi
+0000000100003182   lea        rdi, qword [ds:0x10001a2f0]                 ; 0x10001a2f0 (_metadata + 0x10)
+0000000100003189   mov        esi, 0x28
+000000010000318e   mov        edx, 0x7
+0000000100003193   call       imp___stubs__swift_allocObject
+0000000100003198   mov        r15, rax
+000000010000319b   mov        qword [ds:r15+0x10], 0x2
+00000001000031a3   mov        qword [ds:r15+0x18], 0xabcdefa
+00000001000031ab   mov        qword [ds:r15+0x20], 0xabcdefb
+00000001000031b3   mov        rdi, qword [ds:__TMLGCSs23_ContiguousArrayStorageSi_] ; __TMLGCSs23_ContiguousArrayStorageSi_
+00000001000031ba   test       rdi, rdi
+00000001000031bd   jne        0x1000031e0
+
+00000001000031bf   mov        rsi, qword [ds:imp___got___TMdSi]           ; imp___got___TMdSi
+00000001000031c6   add        rsi, 0x8
+00000001000031ca   mov        rdi, qword [ds:imp___got___TMPdCSs23_ContiguousArrayStorage] ; imp___got___TMPdCSs23_ContiguousArrayStorage
+00000001000031d1   call       imp___stubs__swift_getGenericMetadata1
+00000001000031d6   mov        rdi, rax
+00000001000031d9   mov        qword [ds:__TMLGCSs23_ContiguousArrayStorageSi_], rdi ; __TMLGCSs23_ContiguousArrayStorageSi_
+
+00000001000031e0   mov        esi, 0x30                                   ; XREF=__TFC12swift_weekly4Test8example4fS0_FT_T_+77
+00000001000031e5   mov        edx, 0x7
+00000001000031ea   call       imp___stubs__swift_bufferAllocate
+00000001000031ef   mov        rbx, rax
+00000001000031f2   mov        qword [ds:rbx+0x18], 0x0
+00000001000031fa   mov        qword [ds:rbx+0x10], 0x0
+0000000100003202   mov        rdi, rbx                                    ; argument "ptr" for method imp___stubs__malloc_size
+0000000100003205   call       imp___stubs__malloc_size
+000000010000320a   sub        rax, 0x20
+000000010000320e   jo         0x10000336e
+
+0000000100003214   cmp        rax, 0xfffffffffffffff9
+0000000100003218   jl         0x10000336e
+
+000000010000321e   mov        rcx, rax
+0000000100003221   sar        rcx, 0x3f
+0000000100003225   shr        rcx, 0x3d
+0000000100003229   add        rcx, rax
+000000010000322c   sar        rcx, 0x3
+0000000100003230   add        rcx, rcx
+0000000100003233   mov        qword [ds:rbx+0x10], 0x2
+000000010000323b   mov        qword [ds:rbx+0x18], rcx
+000000010000323f   mov        rax, qword [ds:r15+0x18]
+0000000100003243   mov        qword [ds:rbx+0x20], rax
+0000000100003247   mov        rax, qword [ds:r15+0x20]
+000000010000324b   mov        qword [ds:rbx+0x28], rax
+000000010000324f   mov        qword [ss:rbp+var_28], r15
+0000000100003253   lea        rdi, qword [ss:rbp+var_28]
+0000000100003257   call       imp___stubs__swift_fixLifetime
+000000010000325c   mov        rdi, qword [ss:rbp+var_28]
+0000000100003260   call       imp___stubs__swift_release
+0000000100003265   test       rbx, rbx
+0000000100003268   je         0x1000032c9
+
+000000010000326a   mov        r12, qword [ds:rbx+0x10]
+000000010000326e   mov        rdi, rbx
+0000000100003271   call       imp___stubs__swift_retain
+0000000100003276   mov        rdi, rax
+0000000100003279   call       imp___stubs__swift_retain
+000000010000327e   mov        r15, rax
+0000000100003281   test       r12, r12
+0000000100003284   je         0x1000032ec
+
+0000000100003286   add        rbx, 0x20
+000000010000328a   xor        eax, eax
+000000010000328c   mov        rcx, 0x7fffffffffffffff
+0000000100003296   nop        qword [cs:rax+rax+0x0]
+
+00000001000032a0   cmp        rax, r12                                    ; XREF=__TFC12swift_weekly4Test8example4fS0_FT_T_+341
+00000001000032a3   jge        0x10000336e
+
+00000001000032a9   cmp        rax, rcx
+00000001000032ac   je         0x10000336e
+
+00000001000032b2   cmp        qword [ds:rbx], 0xabcdefa
+00000001000032b9   je         0x10000331d
+
+00000001000032bb   inc        rax
+00000001000032be   add        rbx, 0x8
+00000001000032c2   cmp        r12, rax
+00000001000032c5   jne        0x1000032a0
+
+00000001000032c7   jmp        0x1000032ec
+
+00000001000032c9   mov        rdi, rbx                                    ; XREF=__TFC12swift_weekly4Test8example4fS0_FT_T_+248
+00000001000032cc   call       imp___stubs__swift_retain
+00000001000032d1   mov        rdi, rax
+00000001000032d4   call       imp___stubs__swift_retain
+00000001000032d9   mov        rdi, rax
+00000001000032dc   call       imp___stubs__swift_retain
+00000001000032e1   mov        rdi, rax
+00000001000032e4   call       imp___stubs__swift_retain
+00000001000032e9   mov        r15, rax
+
+00000001000032ec   mov        rdi, r15                                    ; XREF=__TFC12swift_weekly4Test8example4fS0_FT_T_+276, __TFC12swift_weekly4Test8example4fS0_FT_T_+343
+00000001000032ef   call       imp___stubs__swift_release
+00000001000032f4   mov        rdi, r15
+00000001000032f7   call       imp___stubs__swift_release
+00000001000032fc   lea        rax, qword [ds:___unnamed_1_1000186d0]      ; "Could not find int1"
+0000000100003303   mov        qword [ss:rbp+var_58], rax
+0000000100003307   mov        qword [ss:rbp+var_50], 0x13
+000000010000330f   mov        qword [ss:rbp+var_48], 0x0
+0000000100003317   lea        rdi, qword [ss:rbp+var_58]
+000000010000331b   jmp        0x10000334c
+
+000000010000331d   mov        rdi, r15                                    ; XREF=__TFC12swift_weekly4Test8example4fS0_FT_T_+329
+0000000100003320   call       imp___stubs__swift_release
+0000000100003325   mov        rdi, r15
+0000000100003328   call       imp___stubs__swift_release
+000000010000332d   lea        rax, qword [ds:___unnamed_2_1000186b0]      ; "Found int1 in array"
+0000000100003334   mov        qword [ss:rbp+var_40], rax
+0000000100003338   mov        qword [ss:rbp+var_38], 0x13
+0000000100003340   mov        qword [ss:rbp+var_30], 0x0
+0000000100003348   lea        rdi, qword [ss:rbp+var_40]
+
+000000010000334c   call       __TTSSS___TFSs7printlnU__FQ_T_              ; XREF=__TFC12swift_weekly4Test8example4fS0_FT_T_+427
+0000000100003351   mov        rdi, r15
+0000000100003354   call       imp___stubs__swift_release
+0000000100003359   mov        rdi, r14
+000000010000335c   call       imp___stubs__swift_release
+0000000100003361   add        rsp, 0x40
+0000000100003365   pop        rbx
+0000000100003366   pop        r12
+0000000100003368   pop        r14
+000000010000336a   pop        r15
+000000010000336c   pop        rbp
+000000010000336d   ret
+```
 
 Conclusion
 ===
 1. For very simple `add` generic functions for the `IntegerType` protocol, the compiler does the addition of the integers at compile-time and puts the results directly into the code segment. No `add` function will be written in the code as such.
+2. If you place a generic function inside a loop of `N` times, the compiler will generate the code for the generic function `N` times. This can be good and bad.
+3. It seems like Swift generally perfers to keep the integer counter inside a loop in the `ebx` register. If you have a loop that goes from `0` to `1000`, that number range that moves from `0` to `1000` is usually kept inside the `ebx` register.
+4. For more complext generic functions inside loops, the code __is__ brought inline like less complex generic functions however the conditional `jmp` instructions that are placed around the inlined function allow it to be inlined only once.
 
 References
 ===
