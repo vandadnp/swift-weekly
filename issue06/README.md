@@ -1,5 +1,3 @@
-__WORK IN PROGRESS__
-
 Swift Weekly - Issue 06 - The Swift Runtime (Part 4) - Generics
 ===
 	Vandad Nahavandipoor
