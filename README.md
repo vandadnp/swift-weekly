@@ -10,4 +10,5 @@ Here are the available issues:
 - [Issue 03 - The Swift Runtime (Part 2) - Enumerations](issue03/README.md)
 - [Issue 04 - The Swift Runtime (Part 3) - Operators](issue04/README.md)
 - [Issue 05 - The Builder Pattern and Fluent Interface](issue05/README.md)
+- [Issue 06 - The Swift Runtime (Part 4) - Generics](issue06/README.md)
 
