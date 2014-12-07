@@ -80,16 +80,16 @@ class Test{
     
   }
   
-func example4(){
-  let int1 = 0xabcdefa
-  let int2 = 0xabcdefb
-  let array = [int1, int2]
-  if Finder<Int>(array: array, item: int1).isItemInArray(){
-    println("Found int1 in array")
-  } else {
-    println("Could not find int1")
+  func example4(){
+    let int1 = 0xabcdefa
+    let int2 = 0xabcdefb
+    let array = [int1, int2]
+    if Finder<Int>(array: array, item: int1).isItemInArray(){
+      println("Found int1 in array")
+    } else {
+      println("Could not find int1")
+    }
   }
-}
   
   
 }

@@ -811,13 +811,74 @@ let's see the output assembly code:
 000000010000336d   ret
 ```
 
+here are the things that I understand about this code:
+
+1. Our code is again inlined. the whole generic type brought inline into the code. This can be good and bad.
+2. The loop is happening here:
+
+	```asm
+	00000001000032a0   cmp        rax, r12                                    ; XREF=__TFC12swift_weekly4Test8example4fS0_FT_T_+341
+	00000001000032a3   jge        0x10000336e
+
+	00000001000032a9   cmp        rax, rcx
+	00000001000032ac   je         0x10000336e
+
+	00000001000032b2   cmp        qword [ds:rbx], 0xabcdefa
+	00000001000032b9   je         0x10000331d
+
+	00000001000032bb   inc        rax
+	00000001000032be   add        rbx, 0x8
+	00000001000032c2   cmp        r12, rax
+	00000001000032c5   jne        0x1000032a0
+	```
+	
+3. `rax` is the 64-bit register that Swift has designated to be equal to the `i` variable in our generic type's `isItemInArray()` function. So this time Swift did not keep the counter in `ebx`. The compiler's choice of the counter register seems sporadic to say the least.
+4. the `rbx` generic purpose register is really working as a base address register here and it is the index into the array and is incremented by `0x08` every time. Remember every `Int` is 8 bytes long (64-bits) hence the whole `add rbx, 0x08` in the asm code.
+5. The value inside the current index of the array is being compared to `0xabcdefa` (the value we are trying to find), straight in the code. That is here `cmp qword [ds:rbx], 0xabcdefa`. I can see here that even though our app is compiled for the release configuration and the optimization level is at highest, the compiler was not intelligent enough to store our array in the code segment. Instead, it has stored the array in the data segment. That happened pretty much at the head of our asm code:
+
+	```asm
+	000000010000319b  mov  qword [ds:r15+0x10], 0x2
+	00000001000031a3  mov  qword [ds:r15+0x18], 0xabcdefa
+	00000001000031ab  mov  qword [ds:r15+0x20], 0xabcdefb
+	```
+there is a chunk of the output asm code that I have no idea (as of yet) about:
+
+```asm
+000000010000321e   mov        rcx, rax
+0000000100003221   sar        rcx, 0x3f
+0000000100003225   shr        rcx, 0x3d
+0000000100003229   add        rcx, rax
+000000010000322c   sar        rcx, 0x3
+0000000100003230   add        rcx, rcx
+0000000100003233   mov        qword [ds:rbx+0x10], 0x2
+000000010000323b   mov        qword [ds:rbx+0x18], rcx
+000000010000323f   mov        rax, qword [ds:r15+0x18]
+0000000100003243   mov        qword [ds:rbx+0x20], rax
+0000000100003247   mov        rax, qword [ds:r15+0x20]
+000000010000324b   mov        qword [ds:rbx+0x28], rax
+000000010000324f   mov        qword [ss:rbp+var_28], r15
+0000000100003253   lea        rdi, qword [ss:rbp+var_28]
+0000000100003257   call       imp___stubs__swift_fixLifetime
+000000010000325c   mov        rdi, qword [ss:rbp+var_28]
+0000000100003260   call       imp___stubs__swift_release
+0000000100003265   test       rbx, rbx
+0000000100003268   je         0x1000032c9
+```
+
+I can see a lot of logical and arithmatic shift operations to the left and right all, and I see a `sar` instruction shifting the `rcx` register to the right 3 bits. Shiting a register to the right 3 bits is the fastest way for a compiler to divide a value by 8. If you shift right by 1 bit, you divide by 2, shift twice you divide by 4 and 3 bits divides by 8. If you know what this code is doing, please send a pull request so that everybody else will get to learn.
+
+
+
 Conclusion
 ===
 1. For very simple `add` generic functions for the `IntegerType` protocol, the compiler does the addition of the integers at compile-time and puts the results directly into the code segment. No `add` function will be written in the code as such.
 2. If you place a generic function inside a loop of `N` times, the compiler will generate the code for the generic function `N` times. This can be good and bad.
 3. It seems like Swift generally perfers to keep the integer counter inside a loop in the `ebx` register. If you have a loop that goes from `0` to `1000`, that number range that moves from `0` to `1000` is usually kept inside the `ebx` register.
 4. For more complext generic functions inside loops, the code __is__ brought inline like less complex generic functions however the conditional `jmp` instructions that are placed around the inlined function allow it to be inlined only once.
+5. Generic types, depending on their complexity, can also be brought inline. Swift, more often than not, brings generic code inline.
+6. For small or large constant arrays constructed inline, array values are inserted into the data segment in the opening lines of your function. This makes the code execute slower (than if the items were in the code segment) and accessed through general purpose registers, depending on how many items your array has.
 
 References
 ===
 1. [System V Calling Convention](https://en.wikipedia.org/wiki/X86_calling_conventions#System_V_AMD64_ABI)
+2. [Intel® 64 and IA-32 Architectures Software Developer’s Manual Combined Volumes: 1, 2A, 2B, 2C, 3A, 3B, and 3C](http://www.intel.com/content/dam/www/public/us/en/documents/manuals/64-ia-32-architectures-software-developer-manual-325462.pdf)
