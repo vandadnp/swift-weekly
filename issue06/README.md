@@ -94,7 +94,7 @@ func example2(){
 
 before I show you the output assembly, please grab a cup of tea or coffee because this is getting quite interesting. Also make sure that you have a diaper around because this code that the compiler has generated is just... wow:
 
-```swift
+```asm
 push       rbp
 mov        rbp, rsp
 push       r15
