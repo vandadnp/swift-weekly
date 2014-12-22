@@ -450,51 +450,51 @@ that's quite a lot of asm code for this `"1"^ >>> view` swift code, no? well the
 
 1. let's start with the `^` operator on `String`. when we wrote this code:
 
-```swift
-if let i = UIImage(named: s){
-    return i
-} else {
-	...
-}
-```
+	```swift
+	if let i = UIImage(named: s){
+	    return i
+	} else {
+		...
+	}
+	```
 
-the compiler had to first check if our image could be loaded into the constant `i` and if not, then it would try to go to the `else` statement. that code is assembled like so:
+	the compiler had to first check if our image could be loaded into the constant `i` and if not, then it would try to go to the `else` statement. that code is assembled like so:
 
-```asm
-0000000100002b1e         mov        rsi, qword [ds:0x100006f80]                 ; @selector(imageNamed:), argument "selector" for method imp___stubs__objc_msgSend
-0000000100002b25         mov        rdi, rax                                    ; argument "instance" for method imp___stubs__objc_msgSend
-0000000100002b28         mov        rdx, rbx
-0000000100002b2b         call       imp___stubs__objc_msgSend
-0000000100002b38         mov        r12, rax
-0000000100002b43         test       r12, r12
-0000000100002b46         jne        0x100002cc9
-```
+	```asm
+	0000000100002b1e         mov        rsi, qword [ds:0x100006f80]                 ; @selector(imageNamed:), argument "selector" for method imp___stubs__objc_msgSend
+	0000000100002b25         mov        rdi, rax                                    ; argument "instance" for method imp___stubs__objc_msgSend
+	0000000100002b28         mov        rdx, rbx
+	0000000100002b2b         call       imp___stubs__objc_msgSend
+	0000000100002b38         mov        r12, rax
+	0000000100002b43         test       r12, r12
+	0000000100002b46         jne        0x100002cc9
+	```
 
 2. this basically calls the `imageNamed:` method on `UIImage` and then tries to load the image, if it succeeds, then it jumps to the `0x100002cc9` location in `cs`. if you look at the code there, you will see this:
 
-```asm
-0000000100002cc9   mov        rbx, qword [ds:0x100006fc8]                 ; @selector(view), XREF=-[_TtC12swift_weekly14ViewController example2]+102
-0000000100002cd8   mov        rdi, r14                                    ; argument "instance" for method imp___stubs__objc_msgSend
-0000000100002cdb   mov        rsi, rbx                                    ; argument "selector" for method imp___stubs__objc_msgSend
-0000000100002cde   call       imp___stubs__objc_msgSend
-```
+	```asm
+	0000000100002cc9   mov        rbx, qword [ds:0x100006fc8]                 ; @selector(view), XREF=-[_TtC12swift_weekly14ViewController example2]+102
+	0000000100002cd8   mov        rdi, r14                                    ; argument "instance" for method imp___stubs__objc_msgSend
+	0000000100002cdb   mov        rsi, rbx                                    ; argument "selector" for method imp___stubs__objc_msgSend
+	0000000100002cde   call       imp___stubs__objc_msgSend
+	```
 
 3. this code loads the view of our view controller into the `rax` register or its 32-bit lower-dword counterpart `eax`. after that is done, the image view is created:
 
-```asm
-0000000100002cf7         mov        rdi, qword [ds:imp___got__OBJC_CLASS_$_UIImageView] ; imp___got__OBJC_CLASS_$_UIImageView
-0000000100002cfe         call       imp___stubs__swift_getInitializedObjCClass
-0000000100002d03         mov        rsi, qword [ds:0x100006fa0]                 ; @selector(allocWithZone:), argument "selector" for method imp___stubs__objc_msgSend
-0000000100002d0a         xor        edx, edx
-0000000100002d0c         mov        rdi, rax                                    ; argument "instance" for method imp___stubs__objc_msgSend
-0000000100002d0f         call       imp___stubs__objc_msgSend
-0000000100002d14         mov        rsi, qword [ds:0x100006fa8]                 ; @selector(initWithImage:), argument "selector" for method imp___stubs__objc_msgSend
-0000000100002d1b         mov        rdi, rax                                    ; argument "instance" for method imp___stubs__objc_msgSend
-0000000100002d1e         mov        rdx, r12
-0000000100002d21         call       imp___stubs__objc_msgSend
-```
+	```asm
+	0000000100002cf7         mov        rdi, qword [ds:imp___got__OBJC_CLASS_$_UIImageView] ; imp___got__OBJC_CLASS_$_UIImageView
+	0000000100002cfe         call       imp___stubs__swift_getInitializedObjCClass
+	0000000100002d03         mov        rsi, qword [ds:0x100006fa0]                 ; @selector(allocWithZone:), argument "selector" for method imp___stubs__objc_msgSend
+	0000000100002d0a         xor        edx, edx
+	0000000100002d0c         mov        rdi, rax                                    ; argument "instance" for method imp___stubs__objc_msgSend
+	0000000100002d0f         call       imp___stubs__objc_msgSend
+	0000000100002d14         mov        rsi, qword [ds:0x100006fa8]                 ; @selector(initWithImage:), argument "selector" for method imp___stubs__objc_msgSend
+	0000000100002d1b         mov        rdi, rax                                    ; argument "instance" for method imp___stubs__objc_msgSend
+	0000000100002d1e         mov        rdx, r12
+	0000000100002d21         call       imp___stubs__objc_msgSend
+	```
 
-you can see in this code that the allocation is done using the `allocWithZone:` method of the `UIImageView` class. this is cool to know. so the allocation isn't done using the `alloc` method on `NSObject`, but rather with the `allocWithZone:` method. why? if you know that answer, feel free to correct this article with a pull request.
+	you can see in this code that the allocation is done using the `allocWithZone:` method of the `UIImageView` class. this is cool to know. so the allocation isn't done using the `alloc` method on 	`NSObject`, but rather with the `allocWithZone:` method. why? if you know that answer, feel free to correct this article with a pull request.
 
 4. after the image view is created with the image, the center of our view is retrieved and then set as the center of the image view as well and that's it.
 
