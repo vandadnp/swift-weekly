@@ -26,8 +26,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		9D1A88A01A48387400B9E436 /* MyPlayground.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = MyPlayground.playground; sourceTree = "<group>"; };
-		9D1A88A51A483DFE00B9E436 /* temp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = temp; sourceTree = "<group>"; };
 		9DB1E34A1A48323C006CE680 /* swift-weekly.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "swift-weekly.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9DB1E34E1A48323C006CE680 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9DB1E34F1A48323C006CE680 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -85,8 +83,6 @@
 				9DB1E3561A48323C006CE680 /* Images.xcassets */,
 				9DB1E3581A48323C006CE680 /* LaunchScreen.xib */,
 				9DB1E34D1A48323C006CE680 /* Supporting Files */,
-				9D1A88A01A48387400B9E436 /* MyPlayground.playground */,
-				9D1A88A51A483DFE00B9E436 /* temp */,
 			);
 			path = "swift-weekly";
 			sourceTree = "<group>";

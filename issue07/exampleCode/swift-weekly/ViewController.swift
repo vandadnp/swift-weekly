@@ -24,6 +24,31 @@ func +(l: UIImage, r: UIImage) -> UIImage{
     return i
 }
 
+//the ^ operator on String
+postfix operator ^{}
+postfix func ^(s: String) -> UIImage{
+if let i = UIImage(named: s){
+    return i
+} else {
+        //in case we cannot find the image, create a red stretchable pixel
+        let r = CGRect(origin: CGPoint(x: 0, y: 0), size: CGSize(width: 1, height: 1))
+        UIGraphicsBeginImageContextWithOptions(r.size, true, 0)
+        let c = UIGraphicsGetCurrentContext()
+        UIColor.redColor().setFill()
+        CGContextFillRect(c, r)
+        let i = UIGraphicsGetImageFromCurrentImageContext().resizableImageWithCapInsets(UIEdgeInsetsZero, resizingMode: .Tile)
+        UIGraphicsEndImageContext()
+        return i
+    }
+}
+
+// the >>> operator on UIImage
+infix operator >>> {associativity left}
+func >>> (i: UIImage, v: UIView){
+    let iv = UIImageView(image: i)
+    iv.center = v.center
+    v.addSubview(iv)
+}
 
 class ViewController: UIViewController {
     
@@ -34,22 +59,14 @@ class ViewController: UIViewController {
     }
     
     func example2(){
-        let p = CGPoint(x: 0, y: 0)
-        var i = UIImage(named: "1")!
-        i.drawAtPoint(p)
+        "1"^ >>> view
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-        example1()
+        example2()
     }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
-
 
 }
 
