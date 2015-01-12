@@ -286,13 +286,84 @@ this is what the code is doing:
 	* `rsi` is set to `items.count`
 	* `rdx` is pointing to the `items` array
 
-	after these values are set, swift is calling the `__TTSCSo8NSObject___TFVSs12_ArrayBufferg9subscriptFSiQ_` internal function which i am not going to get into. this is basically a function that takes an array of items, 	and then extracts a given value out of it. so could it be that `rdi` in this case is the index into the `items` array before we call the aforementioned function? maybe! after this call is made, `rax` will be set to 	the extracted item.
+	after these values are set, swift is calling the `__TTSCSo8NSObject___TFVSs12_ArrayBufferg9subscriptFSiQ_` internal function which i am not going to get into. 	this is basically a function that takes an array of items, and then extracts a given value out of it. so could it be that `rdi` in this case is the index into the 	`items` array before we call the aforementioned function? maybe! after this call is made, `rax` will be set to the extracted item.
 	
-4. 
+4. then i _think_ what is happening next (submit a pull request please if this is incorrect) is that swift is trying to find out if the retrieved item inside the array is an instance of `NSObject` or not and if yes, then it is trying to get its metadata to find out if its of the type that we are conditionally looking for:
+
+	```asm
+	0000000100001b7e         mov        r15, qword [ss:rbp+0xffffffffffffffd0]
+	0000000100001b82         mov        qword [ss:rbp+var_38], r15
+	0000000100001b86         mov        rbx, qword [ds:__TMLCSo8NSObject]           ; __TMLCSo8NSObject
+	0000000100001b95         test       rbx, rbx
+	0000000100001b98         jne        0x100001bb8
+
+	0000000100001b9a         mov        rdi, qword [ds:imp___got__OBJC_CLASS_$_NSObject] ; imp___got__OBJC_CLASS_$_NSObject
+	0000000100001ba1         call       imp___stubs__swift_getInitializedObjCClass
+	0000000100001ba6         mov        rdi, rax
+	0000000100001ba9         call       imp___stubs__swift_getObjCClassMetadata
+	0000000100001bae         mov        rbx, rax
+	0000000100001bb1         mov        qword [ds:__TMLCSo8NSObject], rbx           ; __TMLCSo8NSObject
+	```
+
+	as you can see, a call is being made to a private internal method called `imp___stubs__swift_getObjCClassMetadata` and as its name explains, i believe it receives an instance of `NSObject` and then retrives 	information about that object, such as its class name.
+	
+5. now the juicy part is going to happen. this is where swift will try to typecast the enumerated value to `Int`
+
+	```asm
+	0000000100001bb8         mov        r8d, 0x6                                    ; XREF=__TFC12swift_weekly14ViewController8example1fS0_FT_T_+472
+	0000000100001bbe         lea        rdi, qword [ss:rbp+0xffffffffffffffc0]
+	0000000100001bc2         lea        rsi, qword [ss:rbp+0xffffffffffffffc8]
+	0000000100001bc6         mov        rdx, rbx
+	0000000100001bc9         mov        rcx, qword [ss:rbp+0xffffffffffffff80]
+	0000000100001bcd         call       imp___stubs__swift_dynamicCast
+	0000000100001bd2         test       al, 0x1
+	0000000100001bd4         je         0x100001bf0
+	```
+
+	parameters are passed in `rdi`, `rsi`, `rdx` and `rcx` as explained in [System V AMD64 ABI calling convention](http://goo.gl/mBdSoG). then a magic function called `imp___stubs__swift_dynamicCast` is executed 	to the typecasting. oh shit. so typecasting is done by making a function call in swift. that's not good news if you ask me. imagine performing typecasts in a loop that repeats thousands of times during the 	lifetime of your app. can you live with the performance implications? it's up to you.
+	
+	then at the end of this call, we check if `al` has a `true` or not and if no, we jump over to `0x100001bf0`. but wait a minute. before discussing that jump, let's see how swift understood that we are 	typecasting our value to `Int`... i've looked at the code for a while (considering that it is quite late at night here), and i cannot, for the life of me, find out how swift is asking for a specific type from 	the  `imp___stubs__swift_dynamicCast` function. so if you do know how this function works, send a pull request and enlighten everybody. thanks.
+	
+6. as you saw in the previous step, if we could find an `Int`, then we continued on without jumping over to `cs:0x100001bf0` and that could would be:
+
+	```asm
+	0000000100001bd6         mov        qword [ss:rbp+var_70], 0xabcdefc
+	0000000100001bde         lea        rdi, qword [ss:rbp+var_70]
+	0000000100001be2         jmp        0x100001c32
+	0000000100001be4         nop        qword [cs:rax+rax+0x0]
+	```
+
+	so here our `0xabcdefc` value is loaded into the stack and then the `rdi` register will point to it and we will jump over to `cs:0x100001c32` which is this:
+
+	```asm
+	0000000100001c32         call       __TTSSi_VSs7_StdoutS_Ss16OutputStreamType___TFSs5printU_Ss16OutputStreamType__FTQ_RQ0__T_ ; XREF=__TFC12swift_weekly14ViewController8example1fS0_FT_T_+546
+	```
+
+	and this is a call to a long-ass function named `__TTSSi_VSs7_StdoutS_Ss16OutputStreamType___TFSs5printU_Ss16OutputStreamType__FTQ_RQ0__T_`. this will eventually print our `0xabcdefc` int value to the screen.
+
+7. if we weren't successful in finding the `Int` value, then we would have this code in front of us:
+
+	```asm
+	0000000100001bfc         mov        r8d, 0x6
+	0000000100001c02         lea        rdi, qword [ss:rbp+0xffffffffffffffa0]
+	0000000100001c06         lea        rsi, qword [ss:rbp+0xffffffffffffffb8]
+	0000000100001c0a         mov        rdx, rbx
+	0000000100001c0d         mov        rcx, qword [ss:rbp+0xffffffffffffff78]
+	0000000100001c14         call       imp___stubs__swift_dynamicCast
+	0000000100001c19         test       al, 0x1
+	0000000100001c1b         je         0x100001c80
+
+	0000000100001c26         mov        qword [ss:rbp+var_68], 0xabcdefd
+	0000000100001c2e         lea        rdi, qword [ss:rbp+var_68]
+	```
+	this is similar to the previous typecasting in that it is using the `imp___stubs__swift_dynamicCast` function to do the typecasting from our `NSObject` to `String`. (note, for some reason, Swift decided to 	turn our whole `items` array into an array of `[NSObject]`, instead of `[AnyObject]` and maybe some of this `NSObject` monkey-business was because of that. Do you know why swift did that? send a pull request 	to fix this up for everybody).
+
+the rest of this code is not magic. so really the important thing that you would want to take away with you is that typecasting in swift is done by an actual function call to an internal and private function called `imp___stubs__swift_dynamicCast`.
 
 Conclusion
 ===
-1. 
+1. Typecasting of values in Swift is done through an internal function called `imp___stubs__swift_dynamicCast`. Swift tends to typecast dynamically at runtime, rather than compile-time. This obviously has performance implications so keep that in mind.
+2. An internal function called `__TTSSi_VSs7_StdoutS_Ss16OutputStreamType___TFSs5printU_Ss16OutputStreamType__FTQ_RQ0__T_` does the work for `println()` of `Int` values to the console.
 
 References
 ===

@@ -20,6 +20,7 @@ class ViewController: UIViewController {
     func example1(){
         
         for v in items{
+            
             if v is Int{
                 println(0xabcdefc)
             }
