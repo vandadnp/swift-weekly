@@ -26,6 +26,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		9DA78DE61A63A0920018D1DE /* dummy */ = {isa = PBXFileReference; lastKnownFileType = text; path = dummy; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.asm.i386; };
 		9DB1E34A1A48323C006CE680 /* swift-weekly.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "swift-weekly.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9DB1E34E1A48323C006CE680 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9DB1E34F1A48323C006CE680 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -83,6 +84,7 @@
 				9DB1E3561A48323C006CE680 /* Images.xcassets */,
 				9DB1E3581A48323C006CE680 /* LaunchScreen.xib */,
 				9DB1E34D1A48323C006CE680 /* Supporting Files */,
+				9DA78DE61A63A0920018D1DE /* dummy */,
 			);
 			path = "swift-weekly";
 			sourceTree = "<group>";

@@ -8,23 +8,16 @@
 
 import UIKit
 
-struct Person{
-    var name: String
-}
-
-struct Car{
-    var manufacturingYear: UInt
-}
-
 class ViewController: UIViewController {
     
+    let items = [
+        0xabcdefa,
+        "Foo",
+        0xabcdefb,
+        "Bar"
+    ]
+    
     func example1(){
-        let items = [
-            0xabcdefa,
-            "Foo",
-            0xabcdefb,
-            "Bar"
-        ]
         
         for v in items{
             if v is Int{
@@ -34,6 +27,7 @@ class ViewController: UIViewController {
                 println(0xabcdefd)
             }
         }
+        
     }
     
     override func viewDidLoad() {
