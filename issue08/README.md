@@ -360,10 +360,204 @@ this is what the code is doing:
 
 the rest of this code is not magic. so really the important thing that you would want to take away with you is that typecasting in swift is done by an actual function call to an internal and private function called `imp___stubs__swift_dynamicCast`.
 
+Unconditional Downcasting
+===
+Let's have a look at unconditional downcasting in swift. as i mentioned before, you can learn about downcasting on [apple's website](http://goo.gl/C15J0l) so i won't teach it here.
+imagine you have the following two classes:
+
+```swift
+class Vehicle{
+    func id() -> Int{
+        return 0xabcdefa
+    }
+}
+
+class Car : Vehicle{
+    override func id() -> Int {
+        return 0xabcdefc
+    }
+}
+```
+
+and then we do this:
+
+```swift
+func example2(){
+    let v: Vehicle = Car()
+    let c = [v][0] as Car
+    println(c)
+}
+```
+so the variable `c` is unconditionally downcasted from the first item in the array that only has `v` as its member. this array is `[Vehicle]` so if we want to get a `Car` object out of it, we have to downcast it, which is what we are doing. So let's see how Swift will compile this code:
+
+```asm
+0000000100001740         push       rbp                                         ; XREF=__TFC12swift_weekly14ViewController11viewDidLoadfS0_FT_T_+111, __TToFC12swift_weekly14ViewController11viewDidLoadfS0_FT_T_+119
+0000000100001741         mov        rbp, rsp
+0000000100001744         push       r15
+0000000100001746         push       r14
+0000000100001748         push       r13
+000000010000174a         push       r12
+000000010000174c         push       rbx
+000000010000174d         sub        rsp, 0x28
+0000000100001751         mov        qword [ss:rbp+var_48], rdi
+0000000100001755         mov        r12, qword [ds:__TMLCC12swift_weekly14ViewController3Car] ; __TMLCC12swift_weekly14ViewController3Car
+000000010000175c         test       r12, r12
+000000010000175f         jne        0x100001777
+
+0000000100001761         lea        rdi, qword [ds:objc_class__TtCC12swift_weekly14ViewController3Car] ; objc_class__TtCC12swift_weekly14ViewController3Car
+0000000100001768         call       imp___stubs__swift_getInitializedObjCClass
+000000010000176d         mov        r12, rax
+0000000100001770         mov        qword [ds:__TMLCC12swift_weekly14ViewController3Car], r12 ; __TMLCC12swift_weekly14ViewController3Car
+
+0000000100001777         mov        esi, 0x10                                   ; XREF=__TFC12swift_weekly14ViewController8example2fS0_FT_T_+31
+000000010000177c         mov        edx, 0x7
+0000000100001781         mov        rdi, r12
+0000000100001784         call       imp___stubs__swift_allocObject
+0000000100001789         mov        r14, rax
+000000010000178c         lea        rdi, qword [ds:0x10001e210]                 ; 0x10001e210 (_metadata + 0x10)
+0000000100001793         mov        esi, 0x20
+0000000100001798         mov        edx, 0x7
+000000010000179d         call       imp___stubs__swift_allocObject
+00000001000017a2         mov        r13, rax
+00000001000017a5         mov        qword [ds:r13+0x10], 0x1
+00000001000017ad         mov        qword [ds:r13+0x18], r14
+00000001000017b1         mov        rbx, qword [ds:__TMLGCSs23_ContiguousArrayStorageCC12swift_weekly14ViewController7Vehicle_] ; __TMLGCSs23_ContiguousArrayStorageCC12swift_weekly14ViewController7Vehicle_
+00000001000017b8         test       rbx, rbx
+00000001000017bb         jne        0x1000017f5
+
+00000001000017bd         mov        rsi, qword [ds:__TMLCC12swift_weekly14ViewController7Vehicle] ; __TMLCC12swift_weekly14ViewController7Vehicle
+00000001000017c4         test       rsi, rsi
+00000001000017c7         jne        0x1000017df
+
+00000001000017c9         lea        rdi, qword [ds:objc_class__TtCC12swift_weekly14ViewController7Vehicle] ; objc_class__TtCC12swift_weekly14ViewController7Vehicle
+00000001000017d0         call       imp___stubs__swift_getInitializedObjCClass
+00000001000017d5         mov        rsi, rax
+00000001000017d8         mov        qword [ds:__TMLCC12swift_weekly14ViewController7Vehicle], rsi ; __TMLCC12swift_weekly14ViewController7Vehicle
+
+00000001000017df         mov        rdi, qword [ds:imp___got___TMPdCSs23_ContiguousArrayStorage] ; imp___got___TMPdCSs23_ContiguousArrayStorage, XREF=__TFC12swift_weekly14ViewController8example2fS0_FT_T_+135
+00000001000017e6         call       imp___stubs__swift_getGenericMetadata1
+00000001000017eb         mov        rbx, rax
+00000001000017ee         mov        qword [ds:__TMLGCSs23_ContiguousArrayStorageCC12swift_weekly14ViewController7Vehicle_], rbx ; __TMLGCSs23_ContiguousArrayStorageCC12swift_weekly14ViewController7Vehicle_
+
+00000001000017fd         mov        qword [ss:rbp+var_50], rax
+0000000100001801         mov        esi, 0x28
+0000000100001806         mov        edx, 0x7
+000000010000180b         mov        rdi, rbx
+000000010000180e         call       imp___stubs__swift_bufferAllocate
+0000000100001813         mov        r14, rax
+0000000100001816         mov        qword [ds:r14+0x18], 0x0
+000000010000181e         mov        qword [ds:r14+0x10], 0x0
+0000000100001826         mov        rdi, r14                                    ; argument "ptr" for method imp___stubs__malloc_size
+0000000100001829         call       imp___stubs__malloc_size
+000000010000182e         sub        rax, 0x20
+0000000100001832         jo         0x1000019d5
+
+0000000100001838         cmp        rax, 0xfffffffffffffff9
+000000010000183c         jl         0x1000019d5
+
+0000000100001842         mov        rcx, rax
+0000000100001845         sar        rcx, 0x3f
+0000000100001849         shr        rcx, 0x3d
+000000010000184d         add        rcx, rax
+0000000100001850         sar        rcx, 0x3
+0000000100001854         lea        rax, qword [ds:rcx+rcx+0x1]
+0000000100001859         mov        qword [ds:r14+0x10], 0x1
+0000000100001861         mov        qword [ds:r14+0x18], rax
+0000000100001865         mov        r15, qword [ds:r13+0x18]
+0000000100001869         mov        qword [ds:r14+0x20], r15
+000000010000186d         call       imp___stubs___TMaCSs20_IndirectArrayBuffer
+0000000100001872         mov        esi, 0x1b
+0000000100001877         mov        edx, 0x7
+000000010000187c         mov        rdi, rax
+000000010000187f         call       imp___stubs__swift_allocObject
+0000000100001884         mov        rbx, rax
+000000010000188f         xor        eax, eax
+0000000100001891         test       r14, r14
+0000000100001894         je         0x100001899
+
+0000000100001896         mov        rax, r14
+
+0000000100001899         mov        qword [ds:rbx+0x10], rax                    ; XREF=__TFC12swift_weekly14ViewController8example2fS0_FT_T_+340
+000000010000189d         mov        byte [ds:rbx+0x18], 0x1
+00000001000018a1         mov        byte [ds:rbx+0x19], 0x0
+00000001000018a5         mov        byte [ds:rbx+0x1a], 0x0
+00000001000018a9         mov        qword [ss:rbp+var_30], r13
+00000001000018ad         lea        rdi, qword [ss:rbp+var_30]
+00000001000018b1         call       imp___stubs__swift_fixLifetime
+00000001000018bf         mov        al, byte [ds:rbx+0x19]
+00000001000018c2         test       al, al
+00000001000018c4         je         0x100001906
+
+00000001000018de         mov        r14, rax
+00000001000018e1         mov        rdi, rbx
+00000001000018e4         call       __TTSCC12swift_weekly14ViewController7Vehicle___TFVSs12_ArrayBufferg5countSi
+00000001000018e9         mov        r15, rax
+00000001000018fc         test       r15, r15
+00000001000018ff         jg         0x100001931
+
+0000000100001901         jmp        0x1000019d5
+
+0000000100001906         mov        r14, qword [ds:rbx+0x10]                    ; XREF=__TFC12swift_weekly14ViewController8example2fS0_FT_T_+388
+000000010000190a         test       r14, r14
+000000010000190d         je         0x1000019d5
+
+0000000100001913         mov        r15, qword [ds:r14+0x10]
+0000000100001927         cmp        r15, 0x0
+000000010000192b         jle        0x1000019d5
+
+0000000100001931         lea        rdi, qword [ss:rbp+var_38]                  ; XREF=__TFC12swift_weekly14ViewController8example2fS0_FT_T_+447
+0000000100001935         xor        esi, esi
+0000000100001937         mov        rdx, rbx
+000000010000193a         call       __TTSCC12swift_weekly14ViewController7Vehicle___TFVSs12_ArrayBufferg9subscriptFSiQ_
+000000010000193f         mov        rdi, qword [ss:rbp+var_38]
+0000000100001943         mov        rsi, r12
+0000000100001946         call       imp___stubs__swift_dynamicCastClassUnconditional
+000000010000194b         mov        qword [ss:rbp+var_40], rax
+0000000100001957         mov        rbx, rax
+000000010000195a         lea        rdi, qword [ss:rbp+var_40]
+000000010000195e         call       __TTSCC12swift_weekly14ViewController3Car_VSs7_StdoutS2_Ss16OutputStreamType___TFSs5printU_Ss16OutputStreamType__FTQ_RQ0__T_
+000000010000199b         mov        edi, 0xa                                    ; argument "c" for method imp___stubs__putchar
+00000001000019a0         call       imp___stubs__putchar
+00000001000019c6         add        rsp, 0x28
+00000001000019ca         pop        rbx
+00000001000019cb         pop        r12
+00000001000019cd         pop        r13
+00000001000019cf         pop        r14
+00000001000019d1         pop        r15
+00000001000019d3         pop        rbp
+00000001000019d4         ret
+```
+
+i've cut some of the asm code out of this output since they were doing the retain/release cycles for us, i thought they were quite useless.
+
+now let's focus on this part of our swift code:
+
+```swift
+let c = [v][0] as Car
+```
+
+this is translated to asm like so:
+
+```asm
+0000000100001937         mov        rdx, rbx
+000000010000193a         call       __TTSCC12swift_weekly14ViewController7Vehicle___TFVSs12_ArrayBufferg9subscriptFSiQ_
+000000010000193f         mov        rdi, qword [ss:rbp+var_38]
+0000000100001943         mov        rsi, r12
+0000000100001946         call       imp___stubs__swift_dynamicCastClassUnconditional
+```
+
+as you can see, swift called a private hidden method called `imp___stubs__swift_dynamicCastClassUnconditional` to __downcast__ the `[Vehicle]` array's first item into a `Car` instance
+
+Conditional Downcasting
+===
+
+
+
 Conclusion
 ===
 1. Typecasting of values in Swift is done through an internal function called `imp___stubs__swift_dynamicCast`. Swift tends to typecast dynamically at runtime, rather than compile-time. This obviously has performance implications so keep that in mind.
 2. An internal function called `__TTSSi_VSs7_StdoutS_Ss16OutputStreamType___TFSs5printU_Ss16OutputStreamType__FTQ_RQ0__T_` does the work for `println()` of `Int` values to the console.
+3. Unconditional downcasts in Swift are done with a call to an internal function called `imp___stubs__swift_dynamicCastClassUnconditional`, at runtime.
 
 References
 ===
