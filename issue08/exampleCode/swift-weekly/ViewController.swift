@@ -31,23 +31,23 @@ class ViewController: UIViewController {
         
     }
     
-class Vehicle{
-    func id() -> Int{
-        return 0xabcdefa
+    class Vehicle{
+        func id() -> Int{
+            return 0xabcdefa
+        }
     }
-}
-
-class Car : Vehicle{
-    override func id() -> Int {
-        return 0xabcdefc
+    
+    class Car : Vehicle{
+        override func id() -> Int {
+            return 0xabcdefc
+        }
     }
-}
-
-func example2(){
-    let v: Vehicle = Car()
-    let c = [v][0] as Car
-    println(c)
-}
+    
+    func example2(){
+        let v: Vehicle = Car()
+        let c = [v][0] as Car
+        println(c)
+    }
     
     class Bicycle : Vehicle{
         override func id() -> Int {
@@ -73,6 +73,6 @@ func example2(){
         
         example2()
     }
-
+    
 }
 
