@@ -36,6 +36,7 @@
 		9DB1E35F1A48323C006CE680 /* swift-weeklyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "swift-weeklyTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9DB1E3641A48323C006CE680 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9DB1E3651A48323C006CE680 /* swift_weeklyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = swift_weeklyTests.swift; sourceTree = "<group>"; };
+		9DD738A71A7D0F3800B18914 /* output.asm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm.asm; path = output.asm; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.asm.i386; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -83,6 +84,7 @@
 				9DB1E3561A48323C006CE680 /* Images.xcassets */,
 				9DB1E3581A48323C006CE680 /* LaunchScreen.xib */,
 				9DB1E34D1A48323C006CE680 /* Supporting Files */,
+				9DD738A71A7D0F3800B18914 /* output.asm */,
 			);
 			path = "swift-weekly";
 			sourceTree = "<group>";
