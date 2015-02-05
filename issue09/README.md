@@ -252,11 +252,63 @@ so here is what the code is doing:
 
 	so in this case, the `rsi` register's value will be set to `0x1000158fd`. the `imp___stubs__objc_msgSend` function then gets called with those values. i am guessing that the value of `0x1000158fd` is then picked by the aforementioned function and will be understood to be the `count()` function somehow. do you know how? send a pull request to inform others.
 
+3. at this point, the `rbx` register contains our array's count:
+
+	```asm
+	0000000100001632         mov        rbx, rax
+	```
+
+	and then the counter gets stored in the stack (so that we won't occupy a general purpose register for this) like so:
+
+	```asm
+	mov        qword [ss:rbp+var_48], rbx
+	```
+
+	obviously then we check the count to make sure it is not zero:
+
+	```asm
+	00000001000019d6         test       rbx, rbx
+	00000001000019d9         js         0x100001c71
+	```
+
+	because if it is, then there is no point going through the loop.
+
+4. then we get our index:
+
+	```asm
+	0000000100001aeb         mov        edi, ebx                                    ; argument "upper_bound" for method imp___stubs__arc4random_uniform
+	0000000100001aed         call       imp___stubs__arc4random_uniform
+	```
+
+	and this index will then be used to retrieve an object out of our array using its `[]` subscript:
+
+	```asm
+	0000000100001bbb         lea        rdi, qword [ss:rbp+var_30]
+	0000000100001bbf         mov        rsi, r12
+	0000000100001bc2         mov        rdx, r15
+	0000000100001bc5         call       __TTSPSs9AnyObject____TFVSs12_ArrayBufferg9subscriptFSiQ_
+	```
+
+	okay so it seems like an internal function called `__TTSPSs9AnyObject____TFVSs12_ArrayBufferg9subscriptFSiQ_` is responsible for retrieving a value out of our array with a subscript.
+
+5. since the value that we grab out of the array is of type `AnyObject`, an internal function with a very very, veeeeery long name gets called to print its value to the console:
+
+	```asm
+	0000000100001be5         lea        rdi, qword [ss:rbp+var_38]
+	0000000100001be9         call       __TTSPSs9AnyObject__VSs7_StdoutS0_Ss16OutputStreamType___TFSs5printU_Ss16OutputStreamType__FTQ_RQ0__T_
+	```
+	
+6. at the end of the loop, our index variable is decreased with the `dec` instruction:
+
+	```asm
+	0000000100001c3f         dec        qword [ss:rbp+var_48]
+	```
+
 
 
 Conclusion
 ===
-1. 
+1. On arrays of type `[AnyObject]`, an internal Swift function called `__TTSPSs9AnyObject____TFVSs12_ArrayBufferg9subscriptFSiQ_` is responsible for the subscripting for an integer value.
 
 References
 ===
