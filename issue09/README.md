@@ -590,13 +590,81 @@ this just grabs a random `Int` out of the dictionary using its key which itself 
 000000010000274d   pop        rbp
 000000010000274e   ret
 ```
+let's see what is happening here:
 
+1. we are first getting the count of our dictionary's keys in order to generate a random integer from 0 to that count:
+
+	```asm
+	0000000100005153         mov        rbx, r14                                    ; XREF=__TTSf4g___TFC12swift_weekly14ViewController8example2fS0_FT_T_+78
+	0000000100005156         and        rbx, r12
+	0000000100005159         mov        r15, qword [ds:0x100009080]                 ; @selector(count)
+	0000000100005170         mov        rdi, rbx                                    ; argument "instance" for method imp___stubs__objc_msgSend
+	0000000100005173         mov        rsi, r15                                    ; argument "selector" for method imp___stubs__objc_msgSend
+	0000000100005176         call       imp___stubs__objc_msgSend
+	000000010000517b         mov        rdi, rax
+	```
+
+	in this case, according to [System V AMD64 ABI calling convention](http://goo.gl/mBdSoG), `rdi` is the `dict`, `rsi` is the selector for `count` which was previously inside the `r15` register. this register is set up like so:
+
+	```asm
+	0000000100005159         mov        r15, qword [ds:0x100009080]                 ; @selector(count)
+	```
+
+	what 64-bit vale is in `[ds:0x100009080]`? let's see:
+
+	```asm
+	0000000100009080         dq         0x10000757d
+	```
+
+	so let's also follow that value to end pu here:
+
+	```asm
+	000000010000757d         db         "count", 0                                  ; XREF=0x100000260, 0x100009080
+	```
+	so it seems like `[ds:0x100009080]` is basically a pointer to the `count` method on our dictionary. the count is now inside the `rdi` register after the `mov` instruction at `cs:000000010000517b`.
+
+2. after we have the count of the keys in the dictionary, we want to generate a random number and that code is written like so in our output assembly:
+
+	```asm
+	0000000100002471         call       imp___stubs__arc4random_uniform
+	0000000100002476         test       rbx, rbx
+	0000000100002479         mov        r12d, eax
+	000000010000247c         jns        0x10000248b
+	```
+
+	note that the `randomIndexInDictionary()` function that we wrote has now been inlined. Swift optimized this out and did not make it a function. You have probably already read the previous Swift Weekly articles and by now noticed that this is a fairly common pattern in Swift.
+
+3. after we have the random index, we get our object out of the dictionary using its key like so:
+
+```asm
+00000001000025c2         mov        r14, qword [ds:0x100009090]                 ; @selector(objectForKey:)
+00000001000025d9         mov        rdi, rbx                                    ; argument "instance" for method imp___stubs__objc_msgSend
+00000001000025dc         mov        rsi, r14                                    ; argument "selector" for method imp___stubs__objc_msgSend
+00000001000025df         mov        rdx, r12
+00000001000025e2         call       imp___stubs__objc_msgSend
+```
+
+and as you can see, the method that we are calling is at `[ds:0x100009090]` and our instance is the dictionary which we have in the `rbx` and now in the `rdi` register. let's have a look at `[ds:0x100009090]`:
+
+```asm
+0000000100009090         dq         0x100007592
+```
+
+and then dig further:
+
+```asm
+0000000100007592         db         "objectForKey:", 0                          ; XREF=0x100009090
+```
+
+okay so if you look closely, it seems like the selector is really `objectForKey:` and it is written as `objectForKey:` which is very similar to how selectors in ObjC were written. Do you know why? send a pull request and inform others.
 
 
 
 Conclusion
 ===
 1. On arrays of type `[AnyObject]`, an internal Swift function called `__TTSPSs9AnyObject____TFVSs12_ArrayBufferg9subscriptFSiQ_` is responsible for the subscripting for an integer value.
+2. Swift saves a table with information to methods for internal data structures such as dictionaries of type `[Int : Int]` inside the data segment. The method location is read from `ds` and called using a simple `call` function. Having the method names and their locations inside binaries means that those locations will probably __not__ ever be changed since if Apple changes those locations, old apps will not work. So those are already set and will _probably_ never change. Which makes you think why they are being read dynamically from `ds` anyways. If you know why, please send a pull request.
+3. 
 
 References
 ===
