@@ -44,10 +44,16 @@ class ViewController: UIViewController {
         
     }
     
+    func example3(){
+        let s = "Hello, World!"
+        let c = s[advance(s.startIndex, 1)]
+        println(c)
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        example2()
+        example3()
         
     }
     

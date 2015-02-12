@@ -636,27 +636,38 @@ let's see what is happening here:
 
 3. after we have the random index, we get our object out of the dictionary using its key like so:
 
-```asm
-00000001000025c2         mov        r14, qword [ds:0x100009090]                 ; @selector(objectForKey:)
-00000001000025d9         mov        rdi, rbx                                    ; argument "instance" for method imp___stubs__objc_msgSend
-00000001000025dc         mov        rsi, r14                                    ; argument "selector" for method imp___stubs__objc_msgSend
-00000001000025df         mov        rdx, r12
-00000001000025e2         call       imp___stubs__objc_msgSend
-```
+	```asm
+	00000001000025c2         mov        r14, qword [ds:0x100009090]                 ; @selector(objectForKey:)
+	00000001000025d9         mov        rdi, rbx                                    ; argument "instance" for method imp___stubs__objc_msgSend
+	00000001000025dc         mov        rsi, r14                                    ; argument "selector" for method imp___stubs__objc_msgSend
+	00000001000025df         mov        rdx, r12
+	00000001000025e2         call       imp___stubs__objc_msgSend
+	```
 
-and as you can see, the method that we are calling is at `[ds:0x100009090]` and our instance is the dictionary which we have in the `rbx` and now in the `rdi` register. let's have a look at `[ds:0x100009090]`:
+	and as you can see, the method that we are calling is at `[ds:0x100009090]` and our instance is the dictionary which we have in the `rbx` and now in the `rdi` register. let's have a look at `[ds:0x100009090]`:
 
-```asm
-0000000100009090         dq         0x100007592
-```
+	```asm
+	0000000100009090         dq         0x100007592
+	```
 
-and then dig further:
+	and then dig further:
 
-```asm
-0000000100007592         db         "objectForKey:", 0                          ; XREF=0x100009090
-```
+	```asm
+	0000000100007592         db         "objectForKey:", 0                          ; XREF=0x100009090
+	```
 
-okay so if you look closely, it seems like the selector is really `objectForKey:` and it is written as `objectForKey:` which is very similar to how selectors in ObjC were written. Do you know why? send a pull request and inform others.
+	okay so if you look closely, it seems like the selector is really `objectForKey:` and it is written as `objectForKey:` which is very similar to how selectors in ObjC were written. Do you know why? send a pull request and inform others.
+
+4. once the value is found, we print it to the console:
+
+	```asm
+	0000000100002720         mov        qword [ss:rbp+var_38], r13                  ; XREF=__TToFC12swift_weekly14ViewController8example2fS0_FT_T_+755
+	0000000100002724         mov        rsi, qword [ds:imp___got___TMdSi]           ; imp___got___TMdSi
+	000000010000272b         add        rsi, 0x8
+	000000010000272f         lea        rdi, qword [ss:rbp+var_38]
+	0000000100002733         call       imp___stubs___TFSs7printlnU__FQ_T_
+	```
+
 
 
 
