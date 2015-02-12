@@ -17,6 +17,16 @@ class ViewController: UIViewController {
         return Int(arc4random_uniform(UInt32(a.count)))
     }
     
+    let dict = [
+        0xabcdefa : 0xabcdefa,
+        0xabcdefb : 0xabcdefb,
+        0xabcdefc : 0xabcdefc
+    ]
+    
+    func randomIndexInDictionary(a: [Int : Int]) -> Int{
+        return Int(arc4random_uniform(UInt32(a.count)))
+    }
+    
     func example1(){
         
         for i in 0..<array.count{
@@ -27,10 +37,17 @@ class ViewController: UIViewController {
         
     }
     
+    func example2(){
+        
+        let value2 = dict[randomIndexInDictionary(dict)]!
+        println(value2)
+        
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        example1()
+        example2()
         
     }
     
