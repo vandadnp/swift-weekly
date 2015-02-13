@@ -1,6 +1,3 @@
-WORK IN PROGRESS
-===
-
 Swift Weekly - Issue 09 - The Swift Runtime (Part 7) - Subscripts
 ===
 	Vandad Nahavandipoor
@@ -797,51 +794,113 @@ and this is how it is assembled:
 
 3. after this, `rax` should contain the result of the `startIndex` property on our `String`. what has to be resolved next is `advance(s.startIndex, 4)` and the call to the `advance()` function:
 
-```asm
-00000001000030a4         mov        rax, qword [ss:rbp+var_48]
-00000001000030a8         mov        rcx, qword [ss:rbp+var_40]
-00000001000030ac         movups     xmm0, xmmword [ss:rbp+var_38]
-00000001000030b0         mov        rdx, qword [ss:rbp+var_28]
-00000001000030b4         mov        qword [ss:rbp+var_70], rax
-00000001000030b8         mov        qword [ss:rbp+var_68], rcx
-00000001000030bc         movups     xmmword [ss:rbp+var_60], xmm0
-00000001000030c0         mov        qword [ss:rbp+var_50], rdx
-00000001000030c4         mov        qword [ss:rbp+var_A0], 0x4
-00000001000030cf         mov        rcx, qword [ds:imp___got___TMdVSS5Index]    ; imp___got___TMdVSS5Index
-00000001000030d6         add        rcx, 0x8
-00000001000030da         lea        rdi, qword [ss:rbp+var_98]                  ; argument #1 for method __TTWVSS5IndexSs16ForwardIndexTypeSsFS0_oi2tgUS0__USs18_SignedIntegerType_Ss33_BuiltinIntegerLiteralConvertible___fMQPS0_FTS3_TVSs8_AdvanceQS3_8Distance__S3_
-00000001000030e1         lea        rsi, qword [ss:rbp+var_70]                  ; argument #2 for method __TTWVSS5IndexSs16ForwardIndexTypeSsFS0_oi2tgUS0__USs18_SignedIntegerType_Ss33_BuiltinIntegerLiteralConvertible___fMQPS0_FTS3_TVSs8_AdvanceQS3_8Distance__S3_
-00000001000030e5         lea        rdx, qword [ss:rbp+var_A0]                  ; argument #3 for method __TTWVSS5IndexSs16ForwardIndexTypeSsFS0_oi2tgUS0__USs18_SignedIntegerType_Ss33_BuiltinIntegerLiteralConvertible___fMQPS0_FTS3_TVSs8_AdvanceQS3_8Distance__S3_
-00000001000030ec         mov        r8, rcx
-00000001000030ef         call       __TTWVSS5IndexSs16ForwardIndexTypeSsFS0_oi2tgUS0__USs18_SignedIntegerType_Ss33_BuiltinIntegerLiteralConvertible___fMQPS0_FTS3_TVSs8_AdvanceQS3_8Distance__S3_
-```
+	```asm
+	00000001000030a4         mov        rax, qword [ss:rbp+var_48]
+	00000001000030a8         mov        rcx, qword [ss:rbp+var_40]
+	00000001000030ac         movups     xmm0, xmmword [ss:rbp+var_38]
+	00000001000030b0         mov        rdx, qword [ss:rbp+var_28]
+	00000001000030b4         mov        qword [ss:rbp+var_70], rax
+	00000001000030b8         mov        qword [ss:rbp+var_68], rcx
+	00000001000030bc         movups     xmmword [ss:rbp+var_60], xmm0
+	00000001000030c0         mov        qword [ss:rbp+var_50], rdx
+	00000001000030c4         mov        qword [ss:rbp+var_A0], 0x4
+	00000001000030cf         mov        rcx, qword [ds:imp___got___TMdVSS5Index]    ; imp___got___TMdVSS5Index
+	00000001000030d6         add        rcx, 0x8
+	00000001000030da         lea        rdi, qword [ss:rbp+var_98]                  ; argument #1 for method __TTWVSS5IndexSs16ForwardIndexTypeSsFS0_oi2tgUS0__USs18_SignedIntegerType_Ss33_BuiltinIntegerLiteralConvertible___fMQPS0_FTS3_TVSs8_AdvanceQS3_8Distance__S3_
+	00000001000030e1         lea        rsi, qword [ss:rbp+var_70]                  ; argument #2 for method __TTWVSS5IndexSs16ForwardIndexTypeSsFS0_oi2tgUS0__USs18_SignedIntegerType_Ss33_BuiltinIntegerLiteralConvertible___fMQPS0_FTS3_TVSs8_AdvanceQS3_8Distance__S3_
+	00000001000030e5         lea        rdx, qword [ss:rbp+var_A0]                  ; argument #3 for method __TTWVSS5IndexSs16ForwardIndexTypeSsFS0_oi2tgUS0__USs18_SignedIntegerType_Ss33_BuiltinIntegerLiteralConvertible___fMQPS0_FTS3_TVSs8_AdvanceQS3_8Distance__S3_
+	00000001000030ec         mov        r8, rcx
+	00000001000030ef         call       __TTWVSS5IndexSs16ForwardIndexTypeSsFS0_oi2tgUS0__USs18_SignedIntegerType_Ss33_BuiltinIntegerLiteralConvertible___fMQPS0_FTS3_TVSs8_AdvanceQS3_8Distance__S3_
+	```
 
-what I am confused about is the first instruction which is `mov        rax, qword [ss:rbp+var_48]`. This instruction effectively changes the value of `rax` 64-bit gpr but at the same time, it's the instruction right after the call to the `__TFSSg10startIndexVSS5Index` function. According to the [System V AMD64 ABI calling convention](http://goo.gl/mBdSoG), return values are stored in `rax` so how is it that Swift is discarding the value of `rax` as soon as that function has come back to the caller? could it be that `__TFSSg10startIndexVSS5Index` stored the value of the `startIndex` property into the stack? if yes, where and why? I don't get this. could it be that the `mov` instruction that is reading the value from stack is reading the return value? let's resolve `mov        rax, qword [ss:rbp+var_48]` to its real address:
+	what I am confused about is the first instruction which is `mov        rax, qword [ss:rbp+var_48]`. This instruction effectively changes the value of `rax` 64-bit gpr but at the same time, it's the instruction right after the call to the `__TFSSg10startIndexVSS5Index` function. According to the [System V AMD64 ABI calling convention](http://goo.gl/mBdSoG), return values are stored in `rax` so how is it that Swift is discarding the value of `rax` as soon as that function has come back to the caller? could it be that `__TFSSg10startIndexVSS5Index` stored the value of the `startIndex` property into the stack? if yes, where and why? I don't get this. could it be that the `mov` instruction that is reading the value from stack is reading the return value? let's resolve `mov        rax, qword [ss:rbp+var_48]` to its real address:
 
-```asm
-mov        rax, qword [ss:rbp+0xffffffffffffffb8]
-```
+	```asm
+	mov        rax, qword [ss:rbp+0xffffffffffffffb8]
+	```
 
-`0xb8` in decimal is 184 and 184/8 (to get the bytes, _if_ this is in bits) would be 23 so this makes no sense. the instruction is `mov` and is clearly reading a 64-bit (8 bytes) value from that location. so there must be a value from `0xffffffffffffffb8` to `0xffffffffffffffc0` but what value? if you know, send a pull request. this is quite vague.
+	`0xb8` in decimal is 184 and 184/8 (to get the bytes, _if_ this is in bits) would be 23 so this makes no sense. the instruction is `mov` and is clearly reading a 64-bit (8 bytes) value from that location. so there must be a value from `0xffffffffffffffb8` to `0xffffffffffffffc0` but what value? if you know, send a pull request. this is quite vague.
 
-I have now moved this same Swift code into a Mac app, then attached a debugger to the disassembled code and let 'er rip. So after the `__TFSSg10startIndexVSS5Index` function, our general purpose registers are set to the following values:
+	I have now moved this same Swift code into a Mac app, then attached a debugger to the disassembled code and let 'er rip. So after the `__TFSSg10startIndexVSS5Index` function, our general purpose registers are set to the following values:
 
-General purpose register | Value
----|---
-RAX | 0x00007FFF5DFCFE30
-RBX | 0x0000000101C36180
-RCX | 0x0000000000000090
-RDX | 0x0000000101C36180
-RSI | 0x0000000101E21D70
-RDI | 0x0000000000000000
-RBP | 0x00007FFF5DFCFE80
-RSP | 0x00007FFF5DFCFDC0
-RIP | 0x0000000101C304A4
+	General purpose register | Value
+	---|---
+	RAX | 0x00007FFF5DFCFE30
+	RBX | 0x0000000101C36180
+	RCX | 0x0000000000000090
+	RDX | 0x0000000101C36180
+	RSI | 0x0000000101E21D70
+	RDI | 0x0000000000000000
+	RBP | 0x00007FFF5DFCFE80
+	RSP | 0x00007FFF5DFCFDC0
+	RIP | 0x0000000101C304A4
 
+	abd we know that the result of the `startIndex` property of `String` is of type `String.Index` which is defined in this way:
 
+	```swift
+	/// A character position in a `String`
+	struct Index : BidirectionalIndexType, Comparable, Reflectable {
 
+	   /// Returns the next consecutive value after `self`.
+	   ///
+	   /// Requires: the next value is representable.
+	   func successor() -> String.Index
 
+	   /// Returns the previous consecutive value before `self`.
+	   ///
+	   /// Requires: the previous value is representable.
+	   func predecessor() -> String.Index
 
+	   /// Returns a mirror that reflects `self`.
+	   func getMirror() -> MirrorType
+	}
+	```
+
+	so we expect the '__TFSSg10startIndexVSS5Index` function to return this index to us but where is it returning it? all those that `Index` conforms to are protocols, not classes. so `String.Index` is a simple structure that conforms to three protocols. should we expect the value of an item of this type to be stored in a general purpose register? if we assume _yes_, and knowing that the start index of our string is 0, the only gpr that is 0 after the execution of `TFSSg10startIndexVSS5Index` is done is the `rdi` register. but could it be that `rdi` was set to 0 _before_ the `__TFSSg10startIndexVSS5Index` function? if we look closely:
+
+	```asm
+	0000000100001491         lea        rdi, qword [ss:rbp+var_50]                  ; argument #1 for method __TFSSg10startIndexVSS5Index
+	0000000100001495         mov        edx, 0xd                                    ; argument #3 for method __TFSSg10startIndexVSS5Index
+	000000010000149a         xor        ecx, ecx                                    ; argument #4 for method __TFSSg10startIndexVSS5Index
+	000000010000149c         mov        rsi, rbx                                    ; argument #2 for method __TFSSg10startIndexVSS5Index
+	000000010000149f         call       __TFSSg10startIndexVSS5Index
+	```
+
+	`rdi` is pointing to the value at `ss:rbp+var_50`. Having a debugger in hand, I can debug that line and see that after that specific line, `rdi` gets set to `0x00007FFF5E479E30` which is a memory address since the instruction used was `lea`, load effective address. You can find information about it in [Intel® 64 and IA-32 Architectures Software Developer’s Manual Combined Volumes: 1, 2A, 2B, 2C, 3A, 3B, and 3C](http://goo.gl/ZBA5oK). I then used the debugger to read the qword value at `0x00007FFF5E479E30` and I found a quad-word value of all-zeros there. So the memory for that address contains a good 8 bytes of zeroes. Could the `__TFSSg10startIndexVSS5Index` function freely change the `rdx` register under our feet? Referring to [System V AMD64 ABI calling convention](http://goo.gl/mBdSoG), it turns out yes:
+
+	> Registers RBP, RBX, and R12-R15 are callee-save registers; all others must be saved by the caller if they wish to preserve their values.[15]
+
+	but there is no sign yet as to whether or not this function actually stored its value in the `rdi` register or not. If you know for sure if this is true or not, send a pull request and correct this article.
+
+	before the call to the `__TTWVSS5IndexSs16ForwardIndexTypeSsFS0_oi2tgUS0__USs18_SignedIntegerType_Ss33_BuiltinIntegerLiteralConvertible___fMQPS0_FTS3_TVSs8_AdvanceQS3_8Distance__S3_` function, the `rbx` register contains the pointer to our string `Hello, World!"`. `rdx` will point to `0x00007FFF5E479DD8` whose memory contains `0x0000000000000004` that is the 4 characters which we are hopping over the original index with. So `rbx` is our first  and `rdx` is the second parameter to the `advance` function.
+
+4. last but not least, we get down to the bottom of what we wanted to find out initially and that is subscripting on strings and that happens here:
+
+	```asm
+	000000010000311e         mov        r15, qword [ss:rbp+var_80]
+	0000000100003122         add        rbx, rax
+	0000000100003125         xor        edx, edx                                    ; argument #3 for method __TTSf4gs_d___TFVSs9CharacterCfMS_FSSS_
+	0000000100003127         mov        rdi, rbx                                    ; argument #1 for method __TTSf4gs_d___TFVSs9CharacterCfMS_FSSS_
+	000000010000312a         call       __TTSf4gs_d___TFVSs9CharacterCfMS_FSSS_
+	```
+
+	at this point, you can see that `rdi` is set to the value of `rbx` and the value of `rdi` is currently `0x000000010178C184`. this is a memory address so let's see what it contains: `o, World!`. Oh hello hello. what do we have here? it seems like Swift has already prepared our string, from the 4th index, just like we wanted. How did this happen?
+
+	Pay attention to these:
+
+	```asm
+	00000001000030ef         call       __TTWVSS5IndexSs16ForwardIndexTypeSsFS0_oi2tgUS0__USs18_SignedIntegerType_Ss33_BuiltinIntegerLiteralConvertible___fMQPS0_FTS3_TVSs8_AdvanceQS3_8Distance__S3_
+	00000001000030f4         mov        rax, qword [ss:rbp+var_98]
+	... some code
+	0000000100003122         add        rbx, rax
+	... some code
+	```
+
+	Oh wait a minute! Holy moly! After the call to the `__TTWVSS5IndexSs16ForwardIndexTypeSsFS0_oi2tgUS0__USs18_SignedIntegerType_Ss33_BuiltinIntegerLiteralConvertible___fMQPS0_FTS3_TVSs8_AdvanceQS3_8Distance__S3_` function, Swift is setting the `rax` register to `qword [ss:rbp+var_98]` which turns out to be the `4` index which we hopped over. So this proves something. The value inside `[ss:rbp+var_98]` is `0x04` which is our final index to read from inside the string. That function put its return value inside the stack? But why? Could it be because `String.Index` is a `struct` and `struct`s are stack based in Swift. It could well be. If you know, send a pull request and add to this article.
+
+	great, so with `rbx` pointing to our string exactly at index 4, `rdi` then gets set to `rbx` according to [System V AMD64 ABI calling convention](http://goo.gl/mBdSoG) as the first parameter to the `__TTSf4gs_d___TFVSs9CharacterCfMS_FSSS_` function. great, mystery solved!
+
+I know there is a lot left to be discussed, for instance, custom subscripts, how do they work? since this article has already grown very long, I think it's best that I move the other discussions out to another article. For now, enjoy coding and have fun!
 
 Conclusion
 ===
@@ -850,11 +909,12 @@ Conclusion
 3. Unused `String` objects keep hanging in the data segment in Xcode 6.3 Beta 1 with Swift 1.2. This is, well, not very good. Make sure that you remove unused strings from your code manually for now.
 4. The `startIndex` function on `String` types is called `__TFSSg10startIndexVSS5Index` in Swift output binaries.
 5. The internal and private name of the function that we all know as `advance` in Swift 1.2 is called `__TTWVSS5IndexSs16ForwardIndexTypeSsFS0_oi2tgUS0__USs18_SignedIntegerType_Ss33_BuiltinIntegerLiteralConvertible___fMQPS0_FTS3_TVSs8_AdvanceQS3_8Distance__S3_`. If this is not the longest function name, I don't know what is.
+6. The `__TTSf4gs_d___TFVSs9CharacterCfMS_FSSS_` function is essentially responsible for reading a `Character` from a `String` as an `String.Index` subscript on `String`.
 
 References
 ===
 1. [The Swift Programming Language - Type Casting](http://goo.gl/C15J0l)
-2. [Intel® 64 and IA-32 Architectures Software Developer’s Manual Combined Volumes: 1, 2A, 2B, 2C, 3A, 3B, and 3C](http://goo.gl/ZBA5oK) 
+2. [Intel® 64 and IA-32 Architectures Software Developer’s Manual Combined Volumes: 1, 2A, 2B, 2C, 3A, 3B, and 3C](http://goo.gl/ZBA5oK)
 3. [`X86CallingConv.td`](http://goo.gl/CYOxoB) file, a part of LLVM compiler's open source code
 4. [System V AMD64 ABI calling convention](http://goo.gl/mBdSoG)
 
