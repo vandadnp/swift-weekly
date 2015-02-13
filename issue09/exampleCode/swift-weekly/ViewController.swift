@@ -46,7 +46,7 @@ class ViewController: UIViewController {
     
     func example3(){
         let s = "Hello, World!"
-        let c = s[advance(s.startIndex, 1)]
+        let c = s[advance(s.startIndex, 4)]
         println(c)
     }
     
