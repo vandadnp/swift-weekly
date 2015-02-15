@@ -856,7 +856,7 @@ and this is how it is assembled:
 	}
 	```
 
-	so we expect the '__TFSSg10startIndexVSS5Index` function to return this index to us but where is it returning it? all those that `Index` conforms to are protocols, not classes. so `String.Index` is a simple structure that conforms to three protocols. should we expect the value of an item of this type to be stored in a general purpose register? if we assume _yes_, and knowing that the start index of our string is 0, the only gpr that is 0 after the execution of `TFSSg10startIndexVSS5Index` is done is the `rdi` register. but could it be that `rdi` was set to 0 _before_ the `__TFSSg10startIndexVSS5Index` function? if we look closely:
+	so we expect the `__TFSSg10startIndexVSS5Index` function to return this index to us but where is it returning it? all those that `Index` conforms to are protocols, not classes. so `String.Index` is a simple structure that conforms to three protocols. should we expect the value of an item of this type to be stored in a general purpose register? if we assume _yes_, and knowing that the start index of our string is 0, the only gpr that is 0 after the execution of `TFSSg10startIndexVSS5Index` is done is the `rdi` register. but could it be that `rdi` was set to 0 _before_ the `__TFSSg10startIndexVSS5Index` function? if we look closely:
 
 	```asm
 	0000000100001491         lea        rdi, qword [ss:rbp+var_50]                  ; argument #1 for method __TFSSg10startIndexVSS5Index
