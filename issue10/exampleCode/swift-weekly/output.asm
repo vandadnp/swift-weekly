@@ -1,53 +1,3 @@
-WORK IN PROGRESS
-===
-Swift Weekly - Issue 10 - The Swift Runtime (Part 8) - Switch Statement
-===
-	Vandad Nahavandipoor
-	http://www.oreilly.com/pub/au/4596
-	Email: vandad.np@gmail.com
-	Blog: http://vandadnp.wordpress.com
-	Skype: vandad.np
-
-Introduction
-===
-I was thinking of writing an article this week about the [switch statement](http://goo.gl/hWuAna) but i almost fell asleep half way through the article. that's super boring. to write it even! so I thought I'll do something more exciting and that is looking at how the `switch` statement and its complementary `case` statement works.
-
-just to give you a heads up, i'm on swift 1.2 so the output assembly on my version of llvm may be different from what you might get depending on the version of xcode and the sdk that is installed on your system:
-
-```bash
-xcrun xcodebuild -version
-Xcode 6.3
-Build version 6D520o
-```
-
-Constructing Tuples Inside a `switch` Statement
-===
-let's compile this swift code:
-
-```swift
-func example1(){
-   
-   let p = CGPoint(x: 0xaaaaaaaa, y: 0xbbbbbbbb)
-   let f = view.frame
-   let fs = f.size
-   
-   switch (p.x, p.y){
-   case (0xabcdefc, 0):
-       println(0xabcdefc)
-   case (fs.width, 0xabcdefe):
-       println(0xabcdefe)
-   case (0xabcdeff, fs.height):
-       println(0xabcdeff)
-   default:
-       println(0xffffffff)
-   }
-   
-}
-```
-
-and get the output assembly:
-
-```asm
 0000000100001b50   push       rbp                                         ; Objective C Implementation defined at 0x100005260 (instance)
 0000000100001b51   mov        rbp, rsp
 0000000100001b54   push       r15
@@ -184,17 +134,3 @@ and get the output assembly:
 0000000100001de0   pop        r15
 0000000100001de2   pop        rbp
 0000000100001de3   ret
-```
-
-let's see what happened. i will explain the code thoroughly here, because, well, i have time and i think it's fun:
-
-1. first we have `mov        r15d, 0xaaaaaaaa` that moves the value of the `x` position of our `CGPoint` into a GPR (General Purpose Register) named `r15d`. I have to admit, i personally had not seen this gpr before, so in search for that, i checked out some resources including [NASM pages](http://goo.gl/5wvq4R) and it turns out that in 32-bit mode, as we know, we have `eax`, `ebx` and other gprs. the equivalent of `eax` in 64-bit mode is `rax`. now, in 32-bit mode, there are 8 new 32/64-bit gprs that have been made available only on x86_64 cpus, and those 32-bit gprs are named `r8d` to `r15d` inclusive. now, these 32-bit gprs are really the lower 32-bits of their 64-bit parents who are named `r8` to `r15` so when we see `mov        r15d, 0xaaaaaaaa` in our code, it just means that the lower-32 bits of the `r15` 64-bit register is now set to `0xaaaaaaaa`. great. that's the x position of our point.
-
-Conclusion
-===
-1. 
-
-References
-===
-1. [Tuples - The Swift Programming Language](http://goo.gl/6UmR8n)
-2. [NASM - Writing 64-bit code](http://goo.gl/5wvq4R)
