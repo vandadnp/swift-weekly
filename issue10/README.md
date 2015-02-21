@@ -251,8 +251,8 @@ let's see what happened. i will explain the code thoroughly here, because, well,
 	0000000100001c3d         je         0x100001c98
 	```
 
-	1. first is the mysterious `mov` instruction: `0000000100001bfc         mov        rax, 0x41a579bdf8000000`. what is going on here? if you know what this value is, send a PR please and complete this article.
-	2. then we have this code `movsd      xmm0, qword [ss:rbp+var_C8]`. remember what we put in `[ss:rbp+var_C8]`? remember this code?
+	* first is the mysterious `mov` instruction: `0000000100001bfc         mov        rax, 0x41a579bdf8000000`. what is going on here? if you know what this value is, send a PR please and complete this article.
+	* then we have this code `movsd      xmm0, qword [ss:rbp+var_C8]`. remember what we put in `[ss:rbp+var_C8]`? remember this code?
 
 		```asm
 		0000000100001b7c         call       imp___stubs___TFE12CoreGraphicsVSC7CGPointCfMS0_FT1xSi1ySi_S0_
@@ -261,7 +261,7 @@ let's see what happened. i will explain the code thoroughly here, because, well,
 	
 		well, the x position of the point that we had created is now inside `[ss:rbp+var_C8]` and after `cs:0000000100001bfc`, `rax` will contain the x position. so Swift is just loading the value of our `p` constant back into general purpose registers, in this case, into the `xmm0` register.
 	
-	3. we then have the following lines of code:
+	* we then have the following lines of code:
 
 		```asm
 		0000000100001c17         mov        r12, qword [ds:imp___got___TWPV12CoreGraphics7CGFloatSs9EquatableS_] ; imp___got___TWPV12CoreGraphics7CGFloatSs9EquatableS_
@@ -270,7 +270,7 @@ let's see what happened. i will explain the code thoroughly here, because, well,
 	
 		after this, `r12` will be set to `0x0000000100F76590` and `rbx` will be set to `0x0000000100F76910` (i have a debugger). still, this is quite vague. let's move on to find out more. maybe these are pieces of a bigger puzzle which we/i don't get yet.
 	
-	4. then we have more mysterious lines:
+	* then we have more mysterious lines:
 
 		```asm
 		0000000100001c25         add        rbx, 0x8
@@ -301,11 +301,25 @@ let's see what happened. i will explain the code thoroughly here, because, well,
 		RSI | 0x00007FFF5F01AE48
 		DS | 0x00000000
 		
-	5. after all of this mystery, we get to the `call` instruction on `qword [ds:r12]`. what in the actual world is this?
+	* after all of this mystery, we get to the `call` instruction on `qword [ds:r12]`. what in the actual world is this? it is obviously a call to `ds:imp___got___TWPV12CoreGraphics7CGFloatSs9EquatableS_` as we saw earlier and what that does really is that it takes the 64-bit values in `ds:rdi` and `ds:rsi` and compares them. if they are equal, it will set `eax` to `0x01` to indicate a boolean value. so this is really the first `case` statement that we had. great to know.
+
+__note__: throughout the asm code for our example method, `[ds:r12]` will remain the address to the `imp___got___TWPV12CoreGraphics7CGFloatSs9EquatableS` function, which takes in a pair of floating point values and then compares them with one another. so if you see a call to `[ds:r12]` you know what that means.
+
+7. note that throughout the code, there are places that we can see the following assembly output:
+
+	```asm
+	jmp        0x100001dc7
+	```
+
+	this jumps to the following code:
+
+	```asm
+	0000000100001dc7         call       imp___stubs___TFSs7printlnU__FQ_T_
+	```
+
+	that is basically... what? oh wait! that is the `println()` function. at the end of all the cases, we are doing a `println()` call and Swift understood that __all__ our cases are just calling the `println()` function so at the end of every case, it has an unconditional jump to `cs:0000000100001dc7` where the call to `println()` happens. this is a hell of an optimization. instead of putting the `println()` for every case, the compiler only placed it in the code once and then jumps to it unconditionally for every case. really cool!
 	
-	
-	
-	
+
 
 
 
@@ -313,6 +327,7 @@ Conclusion
 ===
 1. The `imp___stubs___TFE12CoreGraphicsVSC7CGPointCfMS0_FT1xSi1ySi_S0_` private function takes in an x and a y value in the `rdi` and the `rsi` registers to create a `CGPoint`.
 2. Usually, Swift uses the `imp___stubs__objc_msgSend` to call a function on an instance of `NSObject`. for a property, such as the `frame` property of a `UIView` however, Swift uses the `imp___stubs__objc_msgSend_stret` function but still follows the [System V AMD64](http://goo.gl/mBdSoG) calling convention.
+3. A Swift compiler optimization kicks in where the code for every one of the case statements inside your `switch` calls the same function, but perhaps with different values. For instance, if you call the `println()` function at the end of each case statement, and do nothing else, the compiler is intelligent enough to only put `println()` once in the output assembly and prep the GPRs before it jumps to that line of code where `println()` occurs, so that the correct value gets printed out. Some really cool optimization going on here.
 
 References
 ===
