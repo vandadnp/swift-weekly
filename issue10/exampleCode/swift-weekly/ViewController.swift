@@ -29,68 +29,25 @@ class ViewController: UIViewController {
         
     }
     
-//    func example2(){
-//        
-//        let age = 2
-//        
-//        switch age{
-//        case 0...2:
-//            println("toddler")
-//        case 3...14:
-//            println("child")
-//        case 15...17:
-//            println("teenager")
-//        default:
-//            println("adult")
-//        }
-//        
-//    }
-//    
-//    func example3(){
-//        
-//        class Vehicle{
-//            let name: String
-//            let wheels: Int
-//            init(name: String, wheels: Int){
-//                self.name = name
-//                self.wheels = wheels
-//            }
-//        }
-//        
-//        class Bicycle: Vehicle{
-//            convenience init(){self.init(name: "Bicycle", wheels: 2)}
-//        }
-//        
-//        class Car: Vehicle{
-//            convenience init(){self.init(name: "Car", wheels: 4)}
-//        }
-//        
-//        class AlienCar: Vehicle{
-//            convenience init(){self.init(name: "Blabla", wheels: -1)} //-1 wheels!!!
-//        }
-//        
-//        let vehicles = [Car(), Bicycle(), Car(), AlienCar()]
-//        for v in vehicles{
-//            switch (v.name, v.wheels){
-//            case (_, let wheels) where wheels >= 5:
-//                println("You are a vehicle with more than 4 wheels. Your name isn't important to me")
-//            case (let name, 4):
-//                println("You have 4 wheels and your name is \(name)")
-//            case let (_, 2):
-//                println("You have 2 wheels, you are a bicycle")
-//            case (let name, 1):
-//                println("You are a single wheeler and your name is \(name)")
-//            default:
-//                println("I have no clue what type of a vehicle you are and have no access to your name!")
-//            }
-//        }
-//        
-//    }
+    func randomInt() -> Int{
+        return Int(arc4random_uniform(UInt32.max))
+    }
     
+    func example2(){
+        
+        switch randomInt(){
+        case 0...100:
+            println(0xabcdefa)
+        case 101...200:
+            println(0xabcdefb)
+        default:
+            println(0xabcdefc)
+        }
+        
+    }
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        example1()
+        example2()
     }
     
 }
