@@ -14,3 +14,4 @@ Here are the available issues:
 - [Issue 07 - The Swift Runtime (Part 5) - Operators](issue07/README.md)
 - [Issue 08 - The Swift Runtime (Part 6) - Type Casting](issue08/README.md)
 - [Issue 09 - The Swift Runtime (Part 7) - Subscripts](issue09/README.md)
+- [Issue 10 - The Swift Runtime (Part 8) - Switch Statement](issue10/README.md)
