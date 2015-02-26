@@ -3,4 +3,4 @@ build.sh
 build/
 build/**
 build
-
+**/exampleCode/mac/
