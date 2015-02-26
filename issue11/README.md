@@ -203,10 +203,144 @@ rules for using `@inline`:
 2. use `@inline(__always)` if your function is rather small and you would prefer your app ran faster (__note__: it doesn't make _that_ much of a differenence really)
 3. don't use this keyword if you don't know what inlining of code actually means. [read this first](http://goo.gl/Rgai).
 
+`@noescape`
+===
+this keyword is used to indicate that a closure, which is passed to another function, will not live past the host function's lifetime and guarantees that the closure will not be captured by another closure that is not marked with `@noescape`. holy hell. so assume this situation:
 
+1. i have a closure
+2. i pass that closure to your function
+3. your function will then use `dispatch_asynch` and does some network stuff
+4. when the dispatch is finished, it will call my closure asynchronously
 
+that means that the closure that I will pass to you will be used asynchronously somewhere and that it should capture the state of its local variables as to avoid having them getting deallocated under its feet. so `@noescape` comes to rescue to guarantee that a `noescape` closure that is passed to any function will not be used past the lifetime of the host function.
+
+another advantage of `noescape` closures is that they need not use `self` to communicate with their host class/struct's member variables or functions, only when the closure is of type `() -> ()`. here is an example:
+
+```swift
+func findSingleCharacterNamesInArray(a: [String], callback: (s: String) -> Void){
+    for s in a.filter({count($0.utf16) == 1}){
+        callback(s: s)
+    }
+}
+```
+
+this function goes through an array of strings and for every string of length 1, calls a given closure. we can then use this function like so:
+
+```swift
+let msg = "Found a single character string"
+
+func example3(){
+    
+    let names = ["Vandad", "x", "Sara", "Leif", "Y", "Ulla"]
+    
+    findSingleCharacterNamesInArray(names, { (s) -> Void in
+        println(self.msg)
+    })
+    
+}
+```
+
+you see how we are forced to use `self` in the closure? we can now use `@noescape` to avoid having to do that:
+
+```swift
+func findSingleCharacterNamesInArray(a: [String], @noescape callback: () -> ()){
+    for s in a.filter({count($0.utf16) == 1}){
+        callback()
+    }
+}
+```
+
+__note__: i changed the type of the `callback` parameter to `() -> ()` to ensure that the caller doesn't have to use `self` in the closure to refer to itself.
+
+and then we will use it like so:
+
+```swift
+let msg = "Found a single character string"
+
+func example3(){
+    
+    let names = ["Vandad", "x", "Sara", "Leif", "Y", "Ulla"]
+    
+    findSingleCharacterNamesInArray(names){
+        println(msg)
+    }
+    
+}
+```
+
+rules for using `@noescape`:
+
+1. you want to ensure the caller to your method that the closure that they pass to you need not live past the lifetime of your function.
+2. you want to make it easier for the caller to access their variables in their structs and classes while inside the closure.
+3. you want the compiler to [apply some other small optimizations on your code](http://goo.gl/qXT80N) (god knows what they are!)
+
+`@noreturn`
+===
+We use this keyword before method signatures whose sole purpose is to terminate the execution of the program. this keyword indicates that a method that is marked as noreturn will _not_ return to its caller and the only case where that is true is for a method that throws an exception unconditionally or aborts the execution of the program such as an assertion. here is an example:
+
+```swift
+@noreturn func example4(){
+    fatalError("I am a terrible method")
+}
+
+override func viewDidLoad() {
+    super.viewDidLoad()
+    example4()
+    if view.alpha == 0xabcdefa{ //this line gets a warning saying "Will never be executed"
+    }
+}
+```
+
+it's interesting that we get the warning "Will never be executed" after our call to a `@noreturn` function but is that really what the compiler is doing? I'd expect the compiler not to even compile the code after that call to `example4()` so let's disassemble this:
+
+```asm
+0000000100002e80         push       rbp                                         ; Objective C Implementation defined at 0x100008480 (instance)
+0000000100002e81         mov        rbp, rsp
+0000000100002e84         push       r14
+0000000100002e86         push       rbx
+0000000100002e87         sub        rsp, 0x10
+0000000100002e8b         mov        r14, rdi
+0000000100002e8e         mov        rbx, qword [ds:__TMLC12swift_weekly14ViewController] ; __TMLC12swift_weekly14ViewController
+0000000100002ea2         test       rbx, rbx
+0000000100002ea5         jne        0x100002ebd
+
+0000000100002ea7         lea        rdi, qword [ds:_OBJC_CLASS_$__TtC12swift_weekly14ViewController] ; _OBJC_CLASS_$__TtC12swift_weekly14ViewController
+0000000100002eae         call       imp___stubs__swift_getInitializedObjCClass
+0000000100002eb3         mov        rbx, rax
+0000000100002eb6         mov        qword [ds:__TMLC12swift_weekly14ViewController], rbx ; __TMLC12swift_weekly14ViewController
+
+0000000100002ebd         mov        qword [ss:rbp+var_20], r14                  ; XREF=-[_TtC12swift_weekly14ViewController viewDidLoad]+37
+0000000100002ec1         mov        qword [ss:rbp+var_18], rbx
+0000000100002ec5         mov        rsi, qword [ds:0x1000090a0]                 ; @selector(viewDidLoad), argument "selector" for method imp___stubs__objc_msgSendSuper2
+0000000100002ecc         lea        rdi, qword [ss:rbp+var_20]                  ; argument "super" for method imp___stubs__objc_msgSendSuper2
+0000000100002ed0         call       imp___stubs__objc_msgSendSuper2
+0000000100002ed5         mov        rax, qword [ds:imp___got__swift_isaMask]    ; imp___got__swift_isaMask
+0000000100002edc         mov        rax, qword [ds:rax]
+0000000100002edf         and        rax, qword [ds:r14]
+0000000100002ee2         lea        rcx, qword [ds:_OBJC_CLASS_$__TtC12swift_weekly14ViewController] ; _OBJC_CLASS_$__TtC12swift_weekly14ViewController
+0000000100002ee9         cmp        rax, rcx
+0000000100002eec         jne        0x100002ef8
+
+0000000100002eee         test       r14, r14
+0000000100002ef1         je         0x100002ef8
+
+0000000100002ef3         call       __TTSf4d___TFC12swift_weekly14ViewController8example4fS0_FT_T_
+
+0000000100002ef8         mov        rdi, r14                                    ; XREF=-[_TtC12swift_weekly14ViewController viewDidLoad]+108, -[_TtC12swift_weekly14ViewController viewDidLoad]+113
+0000000100002efb         call       qword [ds:rax+0x78]
+0000000100002efe         nop
+```
+
+do you see the call to `__TTSf4d___TFC12swift_weekly14ViewController8example4fS0_FT_T_`? well, it turns out after that, nothing was compiled. good, gooooood!
+
+rules for using `@noreturn`:
+
+1. use it for methods that unconditionally do an assert that will always fail!
+2. use it for methods that will certainly not return to their caller, such as those that call the `fatalError()` function.
+3. do not use it for methods that do their work asynchronously or conditionally assert or abort the execution of the program.
 
 References
 ===
 1. [Function Type - The Swift Programming Language](http://goo.gl/f1YIfl)
-2. [Inline function] - (http://goo.gl/Rgai)
+2. [Inline function](http://goo.gl/Rgai)
+3. [Xcode release notes](http://goo.gl/qXT80N)

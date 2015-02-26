@@ -11,6 +11,7 @@ import UIKit
 class ViewController: UIViewController {
     
     func show(#msg: String, @autoclosure ifTrue: () -> Bool){
+        
         if ifTrue(){
             println(msg)
         }
@@ -29,11 +30,33 @@ class ViewController: UIViewController {
         println(randomInt())
     }
     
+    func findSingleCharacterNamesInArray(a: [String], @noescape callback: () -> ()){
+        for s in a.filter({count($0.utf16) == 1}){
+            callback()
+        }
+    }
+    
+    let msg = "Found a single character string"
+    
+    func example3(){
+        
+        let names = ["Vandad", "x", "Sara", "Leif", "Y", "Ulla"]
+        
+        findSingleCharacterNamesInArray(names){
+            println(msg)
+        }
+        
+    }
+    
+    @noreturn @inline(never) func example4(){
+        fatalError("I am a terrible method")
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        example2()
-        
+        example4()
+        if view.alpha == 0xabcdefa{ //this line gets a warning saying "Will never be executed"
+        }
     }
     
 }
