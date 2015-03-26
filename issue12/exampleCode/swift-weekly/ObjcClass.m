@@ -12,6 +12,10 @@ extern NSInteger addMethod(NSInteger a, NSInteger b);
 
 @implementation ObjcClass
 
+//NSInteger addMethod(NSInteger a, NSInteger b){
+//    return a + b;
+//}
+
 - (NSInteger) add:(NSInteger)a b:(NSInteger)b{
     return addMethod(a, b);
 }

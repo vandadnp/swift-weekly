@@ -125,6 +125,81 @@ Result of add is 500
 
 __note__: if you want to get the project with the asm file and object file the way i have set it up, check out commit [695043](http://goo.gl/rVrQvZ) from the swift-weekly repo and you should have everything that you need to test this for yourself.
 
+Writing the ARM Version of the Code
+===
+just like we wrote the x86_64 version of our asm file, we have to do the same for the arm architecture. i've named my file `arm.s` and its content is:
+
+```asm
+.align 4
+.global _addMethod
+_addMethod:
+    sub	sp, sp, #16
+    stp	x1, x0, [sp]
+    ldp	x1, x0, [sp]
+    add	x0, x0, x1
+    add	sp, sp, #16
+    ret
+```
+
+and then compile this into an object file:
+
+```bash
+xcrun clang -O3 -arch arm64 arm.s -c -o arm.o
+```
+
+let's disassemble it with `xcrun otool -v -t arm.o` and see what we get:
+
+```asm
+arm.o:
+(__TEXT,__text) section
+_addMethod:
+0000000000000000		sub	sp, sp, #16
+0000000000000004		stp	x1, x0, [sp]
+0000000000000008		ldp	x1, x0, [sp]
+000000000000000c		add	x0, x0, x1
+0000000000000010		add	sp, sp, #16
+0000000000000014		ret
+```
+
+Linking Against the ARM Object File
+===
+This is to make sure that we can run our code on a real device, like the iPhone 6 Plus. Follow these steps:
+
+1. ensure that the `intel.o` file is no longer attached to your target.
+2. drag and drop the `arm.o` file that we created in the previous section, into your project and make sure it is attached to your target.
+3. run your code on a real device.
+
+Linking Against both the ARM and the x86_64 Object Files
+===
+
+we have a problem now. we can either run the project on the simulator, or on a device. if both `intel.o` and `arm.o` are attached to your target, and say that you want to compile your project for running on a device, you would get the following warning from Xcode:
+
+```bash
+ld: warning: ignoring file intel.o, file was built for unsupported file format ( 0xCF 0xFA 0xED 0xFE 0x07 0x00 0x00 0x01 0x03 0x00 0x00 0x00 0x01 0x00 0x00 0x00 ) which is not the architecture being linked (arm64): intel.o
+```
+
+and if you try to run the project on the simulator, you would get this warning:
+
+```bash
+(null): Ignoring file arm.o, file was built for unsupported file format ( 0xCF 0xFA 0xED 0xFE 0x0C 0x00 0x00 0x01 0x00 0x00 0x00 0x00 0x01 0x00 0x00 0x00 ) which is not the architecture being linked (x86_64): arm.o
+```
+
+so we need a way to combine `arm.o` and `intel.o` into one binary and then link against that binary. we use that using the `lipo` command:
+
+```bash
+xcrun lipo -create intel.o arm.o -output both.o
+```
+
+this mixes both object files into a third file called `both.o`. let's get its information:
+
+```bash
+xcrun lipo -info both.o
+Architectures in the fat file: both.o are: x86_64 arm64
+```
+
+now make sure neither `intel.o` nor `arm.o` is attached to your target. then drag and drop `both.o` into your target and compile and run. it works!
+
 References
 ===
-1. 
+1. [The ARM Instruction Set](http://goo.gl/K1Kukw)
+2. [Intel® 64 and IA-32 Architectures Software Developer Manuals](http://goo.gl/B1tTk)

@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		9D58BD111AC42AF50090ECFC /* ObjcClass.m in Sources */ = {isa = PBXBuildFile; fileRef = 9D58BD0D1AC424B50090ECFC /* ObjcClass.m */; };
-		9D58BD471AC42DB70090ECFC /* intel.o in Frameworks */ = {isa = PBXBuildFile; fileRef = 9D58BD461AC42DB70090ECFC /* intel.o */; };
+		9D58BD4E1AC447160090ECFC /* both.o in Frameworks */ = {isa = PBXBuildFile; fileRef = 9D58BD4D1AC447160090ECFC /* both.o */; };
 		9DB1E3501A48323C006CE680 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DB1E34F1A48323C006CE680 /* AppDelegate.swift */; };
 		9DB1E3521A48323C006CE680 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DB1E3511A48323C006CE680 /* ViewController.swift */; };
 		9DB1E3551A48323C006CE680 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9DB1E3531A48323C006CE680 /* Main.storyboard */; };
@@ -33,6 +33,9 @@
 		9D58BD0C1AC424B50090ECFC /* ObjcClass.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObjcClass.h; sourceTree = "<group>"; };
 		9D58BD0D1AC424B50090ECFC /* ObjcClass.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ObjcClass.m; sourceTree = "<group>"; };
 		9D58BD461AC42DB70090ECFC /* intel.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = intel.o; sourceTree = "<group>"; };
+		9D58BD481AC43CCA0090ECFC /* arm.s */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm; path = arm.s; sourceTree = "<group>"; };
+		9D58BD491AC43DEF0090ECFC /* arm.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = arm.o; sourceTree = "<group>"; };
+		9D58BD4D1AC447160090ECFC /* both.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = both.o; sourceTree = "<group>"; };
 		9DB1E34A1A48323C006CE680 /* swift-weekly.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "swift-weekly.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9DB1E34E1A48323C006CE680 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9DB1E34F1A48323C006CE680 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -50,7 +53,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9D58BD471AC42DB70090ECFC /* intel.o in Frameworks */,
+				9D58BD4E1AC447160090ECFC /* both.o in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -69,6 +72,9 @@
 			children = (
 				9D58BD081AC41F110090ECFC /* intel.s */,
 				9D58BD461AC42DB70090ECFC /* intel.o */,
+				9D58BD481AC43CCA0090ECFC /* arm.s */,
+				9D58BD491AC43DEF0090ECFC /* arm.o */,
+				9D58BD4D1AC447160090ECFC /* both.o */,
 			);
 			name = asm;
 			sourceTree = "<group>";
@@ -362,12 +368,14 @@
 				ARCHS = "$(ARCHS_STANDARD)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_FILE = "swift-weekly/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "ab951ef4-f515-4ecb-8f96-db228d6bf5bc";
 				SWIFT_OBJC_BRIDGING_HEADER = "swift-weekly/swift-weekly-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				VALID_ARCHS = "arm64 armv7 armv7s";
@@ -381,10 +389,11 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				INFOPLIST_FILE = "swift-weekly/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "ab951ef4-f515-4ecb-8f96-db228d6bf5bc";
 				SWIFT_OBJC_BRIDGING_HEADER = "swift-weekly/swift-weekly-Bridging-Header.h";
 				VALID_ARCHS = "arm64 armv7 armv7s";
 			};
