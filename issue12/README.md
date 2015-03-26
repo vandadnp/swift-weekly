@@ -123,6 +123,8 @@ when you run the app, you should then get the following printed to your console:
 Result of add is 500
 ```
 
+__note__: if you want to get the project with the asm file and object file the way i have set it up, check out commit [695043](http://goo.gl/rVrQvZ) from the swift-weekly repo and you should have everything that you need to test this for yourself.
+
 References
 ===
 1. 
