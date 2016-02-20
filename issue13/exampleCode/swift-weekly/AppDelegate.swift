@@ -13,15 +13,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
   var window: UIWindow?
   
-  func example1(){
-    let age: UInt = 22
-    
+  func detectAge(age: UInt){
     if case 18...24 = age{
       print("You are between 18 and 24")
     } else {
       print("I have nothing to say!")
     }
-    
+  }
+  
+  func example1(){
+    detectAge(22)
   }
 
   func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
