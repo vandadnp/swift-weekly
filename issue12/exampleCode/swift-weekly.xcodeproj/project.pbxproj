@@ -183,6 +183,7 @@
 		9DB1E3421A48323C006CE680 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				LastSwiftUpdateCheck = 0720;
 				LastUpgradeCheck = 0620;
 				ORGANIZATIONNAME = com.pixolity.ios;
 				TargetAttributes = {
