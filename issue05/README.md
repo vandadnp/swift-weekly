@@ -12,7 +12,7 @@ A few weeks ago I started checking out some Wikipedia articles about various s/e
 
 __Note__: Fluent Interfaces have __nothing__ to do with IB or a visual interface that is displayed on the screen at all. Fluent interfaces are the way that we can write our software to ensure they are... well... fluent. Read on to understand how this works.
 
-I don't think fluent interfaces are the same as the builder pattern. I don't really think fluent interface is actually a pattern at all. I believe that fluent interfaces are a concept, and a kick ass one at that. I think mixing fluent interfaces and the builder pattern will allos us to build Swift classes that are amazingly simple to use, instead of the classic OOP designs that we see on pretty much every Apple class these days. I wish Apple could read this article and (ehem), just update their iOS SDK classes for instance to use fluent interfaces and the builder pattern.
+I don't think fluent interfaces are the same as the builder pattern. I don't really think fluent interface is actually a pattern at all. I believe that fluent interfaces are a concept, and a kick ass one at that. I think mixing fluent interfaces and the builder pattern will allow us to build Swift classes that are amazingly simple to use, instead of the classic OOP designs that we see on pretty much every Apple class these days. I wish Apple could read this article and (ehem), just update their iOS SDK classes for instance to use fluent interfaces and the builder pattern.
 
 If you want to write your Swift apps in the most kick ass way, continue reading. I think this article will help you a lot not only in learning more about Swift, but also writing some really crazy code that will make your life and those around you much easier.
 
