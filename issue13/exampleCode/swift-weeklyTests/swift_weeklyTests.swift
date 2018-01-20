@@ -2,8 +2,8 @@
 //  swift_weeklyTests.swift
 //  swift-weeklyTests
 //
-//  Created by Vandad on 2/20/16.
-//  Copyright © 2016 Pixolity. All rights reserved.
+//  Created by Vandad NP on 1/19/18.
+//  Copyright © 2018 Pixolity Ltd. All rights reserved.
 //
 
 import XCTest
@@ -28,7 +28,7 @@ class swift_weeklyTests: XCTestCase {
     
     func testPerformanceExample() {
         // This is an example of a performance test case.
-        self.measureBlock {
+        self.measure {
             // Put the code you want to measure the time of here.
         }
     }
