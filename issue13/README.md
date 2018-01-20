@@ -170,7 +170,24 @@ swift::swift_getExistentialTypeMetadata(
 }
 ```
 
+The assembled code for this procedure is also embedded in our binary, and is as follows:
 
+```asm
+0x00000001000061c4 28F30058  ldr        x8, #0x100008028
+0x00000001000061c8 040140F9  ldr        x4, [x8]
+0x00000001000061cc 00000012  and        w0, w0, #0x1
+0x00000001000061d0 80001FD6  br         x4
+                        ; endp
+```
+
+The assembly code doesn't tell me much so I'm now looking at the top comment on the CPP code and I see the following:
+
+```cpp
+/// \brief Fetch a uniqued metadata for an existential type. The array
+/// referenced by \c protocols will be sorted in-place.
+```
+
+So it seems like this call is just retrieving some metadata for a data type with the `bl` instruction, which is "Branch and Link" that unconditionally jumps to the given pc-relative label. It would be great to understand the underlying reason why the Swift compiler decided to make a call to the `_swift_rt_swift_getExistentialTypeMetadat` built-in function. It appears that [Joe Groff](https://github.com/jckarter) who currently works at Apple has worked with this particular procedure with commits such as [36127b2801f7d3dcf96a55534e299f5bce9c0a91](https://github.com/apple/swift/commit/36127b2801f7d3dcf96a55534e299f5bce9c0a91) on Apple's Swift source code, so I'd be greatful to have Joe himself comment on this code and what it is meant to do!
 
 References
 ===
