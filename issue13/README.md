@@ -187,7 +187,9 @@ The assembly code doesn't tell me much so I'm now looking at the top comment on 
 /// referenced by \c protocols will be sorted in-place.
 ```
 
-So it seems like this call is just retrieving some metadata for a data type with the `bl` instruction, which is "Branch and Link" that unconditionally jumps to the given pc-relative label. It would be great to understand the underlying reason why the Swift compiler decided to make a call to the `_swift_rt_swift_getExistentialTypeMetadat` built-in function. It appears that [Joe Groff](https://github.com/jckarter) who currently works at Apple has worked with this particular procedure with commits such as [36127b2801f7d3dcf96a55534e299f5bce9c0a91](https://github.com/apple/swift/commit/36127b2801f7d3dcf96a55534e299f5bce9c0a91) on Apple's Swift source code, so I'd be greatful to have Joe himself comment on this code and what it is meant to do!
+So it seems like this call is just retrieving some metadata for a data type with the `bl` instruction, which is "Branch and Link" that unconditionally jumps to the given pc-relative label. It would be great to understand the underlying reason why the Swift compiler decided to make a call to the `_swift_rt_swift_getExistentialTypeMetadat` built-in function. It appears that [Joe Groff](https://github.com/jckarter) who currently works at Apple has worked with this particular procedure with commits such as [36127b2801f7d3dcf96a55534e299f5bce9c0a91](https://github.com/apple/swift/commit/36127b2801f7d3dcf96a55534e299f5bce9c0a91) on Apple's Swift source code, so I'm writing an email to Joe as I'm writing this article, just to get his comments on what the aforementioned function actually does and I will update this article once I know more.
+
+
 
 References
 ===
