@@ -52,84 +52,94 @@ func traditionalForLoop() {
 It doesn't really do anything special but it allows us to get the assembled code by searching for its name in the code segment and then analyzing the results. Here is the ARM64 generated code from *xcodebuild*:
 
 ```asm
-0x00000001000060b0 FFC301D1   sub        sp, sp, #0x70
-0x00000001000060b4 FC6F01A9   stp        x28, x27, [sp, #0x10]
-0x00000001000060b8 FA6702A9   stp        x26, x25, [sp, #0x20]
-0x00000001000060bc F85F03A9   stp        x24, x23, [sp, #0x30]
-0x00000001000060c0 F65704A9   stp        x22, x21, [sp, #0x40]
-0x00000001000060c4 F44F05A9   stp        x20, x19, [sp, #0x50]
-0x00000001000060c8 FD7B06A9   stp        x29, x30, [sp, #0x60]
-0x00000001000060cc FD830191   add        x29, sp, #0x60
-0x00000001000060d0 170080D2   movz       x23, #0x0
-0x00000001000060d4 180000F0   adrp       x24, #0x100009000
-0x00000001000060d8 FA030032   orr        w26, wzr, #0x1
-0x00000001000060dc FC031F32   orr        w28, wzr, #0x2
-0x00000001000060e0 1F2003D5   nop        
-0x00000001000060e4 3BF90058   ldr        x27, #0x100008008
-0x00000001000060e8 B9D5BB52   movz       w25, #0xdead, lsl #16
-0x00000001000060ec F9DD9772   movk       w25, #0xbeef
+0x0000000100005f78 FFC301D1                        sub        sp, sp, #0x70     ; XREF=-[_TtC12swift_weekly11AppDelegate application:didFinishLaunchingWithOptions:]+200
+0x0000000100005f7c FC6F01A9                        stp        x28, x27, [sp, #0x10]
+0x0000000100005f80 FA6702A9                        stp        x26, x25, [sp, #0x20]
+0x0000000100005f84 F85F03A9                        stp        x24, x23, [sp, #0x30]
+0x0000000100005f88 F65704A9                        stp        x22, x21, [sp, #0x40]
+0x0000000100005f8c F44F05A9                        stp        x20, x19, [sp, #0x50]
+0x0000000100005f90 FD7B06A9                        stp        x29, x30, [sp, #0x60]
+0x0000000100005f94 FD830191                        add        x29, sp, #0x60
+0x0000000100005f98 170080D2                        movz       x23, #0x0
+0x0000000100005f9c B85FF2D2                        movz       x24, #0x92fd, lsl #48
+0x0000000100005fa0 1834D3F2                        movk       x24, #0x99a0, lsl #32
+0x0000000100005fa4 B8FCA0F2                        movk       x24, #0x7e5, lsl #16
+0x0000000100005fa8 38E083F2                        movk       x24, #0x1f01
+0x0000000100005fac B9DD9B52                        movz       w25, #0xdeed
+0x0000000100005fb0 FB031F32                        orr        w27, wzr, #0x2
+0x0000000100005fb4 1F2003D5                        nop        
+0x0000000100005fb8 9A020158                        ldr        x26, #0x100008008
+0x0000000100005fbc BCD5BB52                        movz       w28, #0xdead, lsl #16
+0x0000000100005fc0 FCDD9772                        movk       w28, #0xbeef
 
-0x00000001000060f0 D7040037   tbnz       w23, #0x0, 0x100006188
+0x0000000100005fc4 E87E589B                        smulh      x8, x23, x24      ; XREF=__T012swift_weekly11AppDelegateC18traditionalForLoopyyFTf4d_n+272
+0x0000000100005fc8 0801178B                        add        x8, x8, x23
+0x0000000100005fcc 09FD4F93                        asr        x9, x8, #0xf
+0x0000000100005fd0 28FD488B                        add        x8, x9, x8, lsr #63
+0x0000000100005fd4 08DD199B                        msub       x8, x8, x25, x23
+0x0000000100005fd8 080500B5                        cbnz       x8, 0x100006078
 
-0x00000001000060f4 002B43F9   ldr        x0, [x24, #0x650]
-0x00000001000060f8 000200B5   cbnz       x0, 0x100006138
+0x0000000100005fdc 1F2003D5                        nop        
+0x0000000100005fe0 C0B30158                        ldr        x0, #0x100009658
+0x0000000100005fe4 000200B5                        cbnz       x0, 0x100006024
 
-0x00000001000060fc 1F2003D5   nop        
-0x0000000100006100 40AA0158   ldr        x0, #0x100009648
-0x0000000100006104 200100B5   cbnz       x0, 0x100006128
+0x0000000100005fe8 1F2003D5                        nop        
+0x0000000100005fec 20B30158                        ldr        x0, #0x100009650
+0x0000000100005ff0 200100B5                        cbnz       x0, 0x100006014
 
-0x0000000100006108 E0030032   orr        w0, wzr, #0x1
-0x000000010000610c E3230091   add        x3, sp, #0x8
-0x0000000100006110 010080D2   movz       x1, #0x0
-0x0000000100006114 020080D2   movz       x2, #0x0          ; argument #1 for method _swift_rt_swift_getExistentialTypeMetadata
-0x0000000100006118 2A000094   bl         _swift_rt_swift_getExistentialTypeMetadata
-0x000000010000611c 68A90110   adr        x8, #0x100009648
-0x0000000100006120 1F2003D5   nop        
-0x0000000100006124 00FD9FC8   stlr       x0, [x8]
+0x0000000100005ff4 E0030032                        orr        w0, wzr, #0x1
+0x0000000100005ff8 E3230091                        add        x3, sp, #0x8
+0x0000000100005ffc 010080D2                        movz       x1, #0x0
+0x0000000100006000 020080D2                        movz       x2, #0x0          ; argument #1 for method _swift_rt_swift_getExistentialTypeMetadata
+0x0000000100006004 6F000094                        bl         _swift_rt_swift_getExistentialTypeMetadata
+0x0000000100006008 48B20110                        adr        x8, #0x100009650
+0x000000010000600c 1F2003D5                        nop        
+0x0000000100006010 00FD9FC8                        stlr       x0, [x8]
 
-0x0000000100006128 52000094   bl         imp___stubs___T0s23_ContiguousArrayStorageCMa
-0x000000010000612c 28A90110   adr        x8, #0x100009650
-0x0000000100006130 1F2003D5   nop        
-0x0000000100006134 00FD9FC8   stlr       x0, [x8]
+0x0000000100006014 97000094                        bl         imp___stubs___T0s23_ContiguousArrayStorageCMa ; XREF=__T012swift_weekly11AppDelegateC18traditionalForLoopyyFTf4d_n+120
+0x0000000100006018 08B20110                        adr        x8, #0x100009658
+0x000000010000601c 1F2003D5                        nop        
+0x0000000100006020 00FD9FC8                        stlr       x0, [x8]
 
-0x0000000100006138 E1031A32   orr        w1, wzr, #0x40
-0x000000010000613c E20B0032   orr        w2, wzr, #0x7
-0x0000000100006140 25000094   bl         _swift_rt_swift_allocObject
-0x0000000100006144 F30300AA   mov        x19, x0
-0x0000000100006148 7A7201A9   stp        x26, x28, [x19, #0x10]
-0x000000010000614c 7B1E00F9   str        x27, [x19, #0x38]
-0x0000000100006150 771200F9   str        x23, [x19, #0x20]
-0x0000000100006154 4D000094   bl         imp___stubs___T0s5printySayypGd_SS9separatorSS10terminatortFfA0_
-0x0000000100006158 F40300AA   mov        x20, x0
-0x000000010000615c F50301AA   mov        x21, x1
-0x0000000100006160 F60302AA   mov        x22, x2
-0x0000000100006164 4C000094   bl         imp___stubs___T0s5printySayypGd_SS9separatorSS10terminatortFfA1_
-0x0000000100006168 E40300AA   mov        x4, x0
-0x000000010000616c E50301AA   mov        x5, x1
-0x0000000100006170 E60302AA   mov        x6, x2
-0x0000000100006174 E00313AA   mov        x0, x19
-0x0000000100006178 E10314AA   mov        x1, x20
-0x000000010000617c E20315AA   mov        x2, x21
-0x0000000100006180 E30316AA   mov        x3, x22
-0x0000000100006184 3E000094   bl         imp___stubs___T0s5printySayypGd_SS9separatorSS10terminatortF
+0x0000000100006024 E1031A32                        orr        w1, wzr, #0x40    ; XREF=__T012swift_weekly11AppDelegateC18traditionalForLoopyyFTf4d_n+108
+0x0000000100006028 E20B0032                        orr        w2, wzr, #0x7
+0x000000010000602c 6A000094                        bl         _swift_rt_swift_allocObject
+0x0000000100006030 F30300AA                        mov        x19, x0
+0x0000000100006034 E8030032                        orr        w8, wzr, #0x1
+0x0000000100006038 686E01A9                        stp        x8, x27, [x19, #0x10]
+0x000000010000603c 7A1E00F9                        str        x26, [x19, #0x38]
+0x0000000100006040 771200F9                        str        x23, [x19, #0x20]
+0x0000000100006044 91000094                        bl         imp___stubs___T0s5printySayypGd_SS9separatorSS10terminatortFfA0_
+0x0000000100006048 F40300AA                        mov        x20, x0
+0x000000010000604c F50301AA                        mov        x21, x1
+0x0000000100006050 F60302AA                        mov        x22, x2
+0x0000000100006054 90000094                        bl         imp___stubs___T0s5printySayypGd_SS9separatorSS10terminatortFfA1_
+0x0000000100006058 E40300AA                        mov        x4, x0
+0x000000010000605c E50301AA                        mov        x5, x1
+0x0000000100006060 E60302AA                        mov        x6, x2
+0x0000000100006064 E00313AA                        mov        x0, x19
+0x0000000100006068 E10314AA                        mov        x1, x20
+0x000000010000606c E20315AA                        mov        x2, x21
+0x0000000100006070 E30316AA                        mov        x3, x22
+0x0000000100006074 82000094                        bl         imp___stubs___T0s5printySayypGd_SS9separatorSS10terminatortF
 
-0x0000000100006188 FF0219EB   cmp        x23, x25
-0x000000010000618c A0000054   b.eq       0x1000061a0
+0x0000000100006078 FF021CEB                        cmp        x23, x28          ; XREF=__T012swift_weekly11AppDelegateC18traditionalForLoopyyFTf4d_n+96
+0x000000010000607c A0000054                        b.eq       0x100006090
 
-0x0000000100006190 FF0600B1   cmn        x23, #0x1
-0x0000000100006194 F7060091   add        x23, x23, #0x1
-0x0000000100006198 C7FAFF54   b.vc       0x1000060f0
+0x0000000100006080 FF0600B1                        cmn        x23, #0x1
+0x0000000100006084 F7060091                        add        x23, x23, #0x1
+0x0000000100006088 E7F9FF54                        b.vc       0x100005fc4
 
-0x000000010000619c 200020D4   brk        #0x1
+0x000000010000608c 200020D4                        brk        #0x1
 
-0x00000001000061a0 FD7B46A9   ldp        x29, x30, [sp, #0x60]
-0x00000001000061a4 F44F45A9   ldp        x20, x19, [sp, #0x50]
-0x00000001000061a8 F65744A9   ldp        x22, x21, [sp, #0x40]
-0x00000001000061ac F85F43A9   ldp        x24, x23, [sp, #0x30]
-0x00000001000061b0 FA6742A9   ldp        x26, x25, [sp, #0x20]
-0x00000001000061b4 FC6F41A9   ldp        x28, x27, [sp, #0x10]
-0x00000001000061b8 FFC30191   add        sp, sp, #0x70
-0x00000001000061bc C0035FD6   ret
+0x0000000100006090 FD7B46A9                        ldp        x29, x30, [sp, #0x60] ; XREF=__T012swift_weekly11AppDelegateC18traditionalForLoopyyFTf4d_n+260
+0x0000000100006094 F44F45A9                        ldp        x20, x19, [sp, #0x50]
+0x0000000100006098 F65744A9                        ldp        x22, x21, [sp, #0x40]
+0x000000010000609c F85F43A9                        ldp        x24, x23, [sp, #0x30]
+0x00000001000060a0 FA6742A9                        ldp        x26, x25, [sp, #0x20]
+0x00000001000060a4 FC6F41A9                        ldp        x28, x27, [sp, #0x10]
+0x00000001000060a8 FFC30191                        add        sp, sp, #0x70
+0x00000001000060ac C0035FD6                        ret
 ```
 
 I will have to fire up ARM's reference manual to be able to understand all these instructions but I don't think it's a good idea to just put some assembly code in here and analyze it. Instead, we will look at some of the calls which are executed in this code and find out how they work and what they do.
@@ -257,6 +267,109 @@ class HighPriority {
     }
     
 }
+```
+
+TO BE CONTINUED
+
+
+`forEach{}` Loop
+===
+Let's rewrite the previous code by calling the `forEach` function on our array:
+
+```swift
+@inline(never)
+func forEachLoop() {
+    
+    (0...0xDEADBEEF).forEach {value in
+        if value % 2 == 0 {
+            print(value)
+        }
+    }
+    
+}
+```
+
+Let's look at the generated assembly code to get some hints as to how this loop differs from the traditional `for` loop:
+
+```asm
+0x00000001000060b0 FFC301D1                        sub        sp, sp, #0x70     ; XREF=-[_TtC12swift_weekly11AppDelegate application:didFinishLaunchingWithOptions:]+204
+0x00000001000060b4 FC6F01A9                        stp        x28, x27, [sp, #0x10]
+0x00000001000060b8 FA6702A9                        stp        x26, x25, [sp, #0x20]
+0x00000001000060bc F85F03A9                        stp        x24, x23, [sp, #0x30]
+0x00000001000060c0 F65704A9                        stp        x22, x21, [sp, #0x40]
+0x00000001000060c4 F44F05A9                        stp        x20, x19, [sp, #0x50]
+0x00000001000060c8 FD7B06A9                        stp        x29, x30, [sp, #0x60]
+0x00000001000060cc FD830191                        add        x29, sp, #0x60
+0x00000001000060d0 170080D2                        movz       x23, #0x0
+0x00000001000060d4 180000F0                        adrp       x24, #0x100009000
+0x00000001000060d8 FA030032                        orr        w26, wzr, #0x1
+0x00000001000060dc FC031F32                        orr        w28, wzr, #0x2
+0x00000001000060e0 1F2003D5                        nop        
+0x00000001000060e4 3BF90058                        ldr        x27, #0x100008008
+0x00000001000060e8 B9D5BB52                        movz       w25, #0xdead, lsl #16
+0x00000001000060ec F9DD9772                        movk       w25, #0xbeef
+
+0x00000001000060f0 D7040037                        tbnz       w23, #0x0, 0x100006188 ; XREF=__T012swift_weekly11AppDelegateC11forEachLoopyyFTf4d_n+232
+
+0x00000001000060f4 002F43F9                        ldr        x0, [x24, #0x658]
+0x00000001000060f8 000200B5                        cbnz       x0, 0x100006138
+
+0x00000001000060fc 1F2003D5                        nop        
+0x0000000100006100 80AA0158                        ldr        x0, #0x100009650
+0x0000000100006104 200100B5                        cbnz       x0, 0x100006128
+
+0x0000000100006108 E0030032                        orr        w0, wzr, #0x1
+0x000000010000610c E3230091                        add        x3, sp, #0x8
+0x0000000100006110 010080D2                        movz       x1, #0x0
+0x0000000100006114 020080D2                        movz       x2, #0x0          ; argument #1 for method _swift_rt_swift_getExistentialTypeMetadata
+0x0000000100006118 2A000094                        bl         _swift_rt_swift_getExistentialTypeMetadata
+0x000000010000611c A8A90110                        adr        x8, #0x100009650
+0x0000000100006120 1F2003D5                        nop        
+0x0000000100006124 00FD9FC8                        stlr       x0, [x8]
+
+0x0000000100006128 52000094                        bl         imp___stubs___T0s23_ContiguousArrayStorageCMa ; XREF=__T012swift_weekly11AppDelegateC11forEachLoopyyFTf4d_n+84
+0x000000010000612c 68A90110                        adr        x8, #0x100009658
+0x0000000100006130 1F2003D5                        nop        
+0x0000000100006134 00FD9FC8                        stlr       x0, [x8]
+
+0x0000000100006138 E1031A32                        orr        w1, wzr, #0x40    ; XREF=__T012swift_weekly11AppDelegateC11forEachLoopyyFTf4d_n+72
+0x000000010000613c E20B0032                        orr        w2, wzr, #0x7
+0x0000000100006140 25000094                        bl         _swift_rt_swift_allocObject
+0x0000000100006144 F30300AA                        mov        x19, x0
+0x0000000100006148 7A7201A9                        stp        x26, x28, [x19, #0x10]
+0x000000010000614c 7B1E00F9                        str        x27, [x19, #0x38]
+0x0000000100006150 771200F9                        str        x23, [x19, #0x20]
+0x0000000100006154 4D000094                        bl         imp___stubs___T0s5printySayypGd_SS9separatorSS10terminatortFfA0_
+0x0000000100006158 F40300AA                        mov        x20, x0
+0x000000010000615c F50301AA                        mov        x21, x1
+0x0000000100006160 F60302AA                        mov        x22, x2
+0x0000000100006164 4C000094                        bl         imp___stubs___T0s5printySayypGd_SS9separatorSS10terminatortFfA1_
+0x0000000100006168 E40300AA                        mov        x4, x0
+0x000000010000616c E50301AA                        mov        x5, x1
+0x0000000100006170 E60302AA                        mov        x6, x2
+0x0000000100006174 E00313AA                        mov        x0, x19
+0x0000000100006178 E10314AA                        mov        x1, x20
+0x000000010000617c E20315AA                        mov        x2, x21
+0x0000000100006180 E30316AA                        mov        x3, x22
+0x0000000100006184 3E000094                        bl         imp___stubs___T0s5printySayypGd_SS9separatorSS10terminatortF
+
+0x0000000100006188 FF0219EB                        cmp        x23, x25          ; XREF=__T012swift_weekly11AppDelegateC11forEachLoopyyFTf4d_n+64
+0x000000010000618c A0000054                        b.eq       0x1000061a0
+
+0x0000000100006190 FF0600B1                        cmn        x23, #0x1
+0x0000000100006194 F7060091                        add        x23, x23, #0x1
+0x0000000100006198 C7FAFF54                        b.vc       0x1000060f0
+
+0x000000010000619c 200020D4                        brk        #0x1
+
+0x00000001000061a0 FD7B46A9                        ldp        x29, x30, [sp, #0x60] ; XREF=__T012swift_weekly11AppDelegateC11forEachLoopyyFTf4d_n+220
+0x00000001000061a4 F44F45A9                        ldp        x20, x19, [sp, #0x50]
+0x00000001000061a8 F65744A9                        ldp        x22, x21, [sp, #0x40]
+0x00000001000061ac F85F43A9                        ldp        x24, x23, [sp, #0x30]
+0x00000001000061b0 FA6742A9                        ldp        x26, x25, [sp, #0x20]
+0x00000001000061b4 FC6F41A9                        ldp        x28, x27, [sp, #0x10]
+0x00000001000061b8 FFC30191                        add        sp, sp, #0x70
+0x00000001000061bc C0035FD6                        ret
 ```
 
 

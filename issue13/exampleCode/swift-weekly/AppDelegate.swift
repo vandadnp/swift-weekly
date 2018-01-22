@@ -24,9 +24,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
     }
     
+@inline(never)
+func forEachLoop() {
+    
+    (0...0xDEADBEEF).forEach {value in
+        if value % 2 == 0 {
+            print(value)
+        }
+    }
+    
+}
+    
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         traditionalForLoop()
+        forEachLoop()
         return true
     }
     
