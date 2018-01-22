@@ -17,7 +17,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func traditionalForLoop() {
         
         for value in 0...0xDEADBEEF {
-            if value % 2 == 0 {
+            if value % 0xDEED == 0 {
                 print(value)
             }
         }

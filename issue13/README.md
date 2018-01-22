@@ -189,6 +189,91 @@ The assembly code doesn't tell me much so I'm now looking at the top comment on 
 
 So it seems like this call is just retrieving some metadata for a data type with the `bl` instruction, which is "Branch and Link" that unconditionally jumps to the given pc-relative label. It would be great to understand the underlying reason why the Swift compiler decided to make a call to the `_swift_rt_swift_getExistentialTypeMetadat` built-in function. It appears that [Joe Groff](https://github.com/jckarter) who currently works at Apple has worked with this particular procedure with commits such as [36127b2801f7d3dcf96a55534e299f5bce9c0a91](https://github.com/apple/swift/commit/36127b2801f7d3dcf96a55534e299f5bce9c0a91) on Apple's Swift source code, so I'm writing an email to Joe as I'm writing this article, just to get his comments on what the aforementioned function actually does and I will update this article once I know more.
 
+The next thing that is happening in the chain of calls is the call to the `imp___stubs___T0s23_ContiguousArrayStorageCMa` procedure. I believe this call is when Swift decides to allocate an array for our range expressed in Swift as `0...0xDEADBEEF`:
+
+Last but not least is the call to the `imp___stubs___T0s5printySayypGd_SS9separatorSS10terminatortFfA0_` built-in function that is the internal function that takes care of our `print()` statement. I was wondering about the performance of this Swift code so I wrote a small Swift class that is able to perform a block of code in a high priority dispatch queue 3 times and then get the mean execution time as to help us understand how much time that code block takes on average to execute. Here is that class for your reference:
+
+```swift
+import Foundation
+
+private extension Array where Element == CFAbsoluteTime {
+    var mean: CFAbsoluteTime {
+        return reduce(0) {$0 + $1} / CFAbsoluteTime(count)
+    }
+}
+
+class HighPriority {
+    
+    typealias Task = () -> Void
+    let task: Task
+    
+    init(task: @escaping Task) {
+        self.task = task
+    }
+    
+    private lazy var queue: DispatchQueue = {
+        return DispatchQueue(label: UUID().uuidString,
+                             qos: DispatchQoS.userInteractive,
+                             attributes: .concurrent,
+                             autoreleaseFrequency: .inherit,
+                             target: nil)
+    }()
+    
+    typealias PerformCompletion = (CFAbsoluteTime) -> Void
+    
+    func perform(completion: @escaping PerformCompletion) {
+        
+        //perform 3 times, and get an average performance
+        var times = [CFAbsoluteTime]()
+        
+        internalPerform(completion: {time in
+            times.append(time)
+            self.internalPerform(completion: {time in
+                times.append(time)
+                self.internalPerform(completion: {time in
+                    times.append(time)
+                    let mean = times.mean
+                    completion(mean)
+                })
+            })
+        })
+        
+        
+    }
+    
+    @inline(__always)
+    private func internalPerform(completion: @escaping PerformCompletion) {
+        
+        queue.async {
+            let start = CFAbsoluteTimeGetCurrent()
+            self.task()
+            let end = CFAbsoluteTimeGetCurrent()
+            let delta = end - start
+            DispatchQueue.main.async {
+                completion(delta)
+            }
+        }
+        
+    }
+    
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 References
