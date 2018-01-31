@@ -1,4 +1,4 @@
-Swift Weekly - Issue 13 - Internals of a Loop
+Swift Weekly - Issue 13 - Loops
 ===
 	Vandad Nahavandipoor
 	http://www.oreilly.com/pub/au/4596

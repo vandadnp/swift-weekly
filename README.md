@@ -17,3 +17,4 @@ Here are the available issues:
 - [Issue 10 - The Swift Runtime (Part 8) - Switch Statement](issue10/README.md)
 - [Issue 11 - `@autoclosure`, `@inline`, `@noescape`, and `@noreturn` Keywords](issue11/README.md)
 - [Issue 12 - Adding Assembly Code to Swift](issue12/README.md)
+- [Issue 13 - Loops](issue13/README.md)
