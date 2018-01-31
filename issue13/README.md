@@ -269,7 +269,40 @@ class HighPriority {
 }
 ```
 
-TO BE CONTINUED
+I want to now do a test on the traditional `for` loop and run it with the `HighPriority` class which we just wrote, on an iPhone 7 with full optimization on the code, and see how long it takes. But since the code right now includes a `printf()` function, it will take a huge amount of time to execute. That's dumb, so let's remove the `printf()` and make the code smarter so that it won't get optimized out since it's not doing anything, but still do something unnecessarily enough for the code to be executable:
+
+```swift
+@inline(never)
+func traditionalForLoop() {
+    
+    var lastValue = 0
+    for value in 0...0xDEADBEEF {
+        if value % 0xDEED == 0 {
+            lastValue = value
+        }
+    }
+    if lastValue < 0 {
+        print(lastValue)
+    }
+    
+}
+```
+
+If I run this code with our `HighPriority` class as shown here:
+
+```swift
+HighPriority(task: traditionalForLoop).perform { (time) in
+    print(time)
+}
+```
+
+I get the following result: **2.68 seconds**
+
+Verdict:
+
+|            | Aesthetics | Conciseness | Performance | Overal Score |
+|------------|------------|-------------|-------------|--------------|
+| `for` loop | ⭐️⭐️⭐️⭐️⭐️      | ⭐️⭐️⭐️⭐️⭐️       | ⭐️⭐️⭐️⭐️        | ⭐️⭐️⭐️⭐️         |
 
 
 `forEach{}` Loop
@@ -372,22 +405,204 @@ Let's look at the generated assembly code to get some hints as to how this loop 
 0x00000001000061bc C0035FD6                        ret
 ```
 
+So it appears as if the call to the `forEach` function of the array was made inline and this code is very much identical to the normal `for` loop.
+
+I want to do the same thing with this code and run it through the `HighPriority` class and see how long it takes to execute on an iPhone 7 with full optimization turned on but we have to also make this code smarter so that it doesn't include a `printf()` statement (since that takes a huge amount of time for a loop between `0...0xDEADBEEF`) and also we need to ensure that the code won't just do nothing, since it will get optimized out. So here is the new code:
+
+```swift
+@inline(never)
+func forEachLoop() {
+    
+    var lastValue = 0
+    (0...0xDEADBEEF).forEach {value in
+        if value % 2 == 0 {
+            lastValue = value
+        }
+    }
+    if lastValue < 0 {
+        print(lastValue)
+    }
+    
+}
+```
+
+I get the following result: **2.48 seconds**
+
+Verdict:
+
+|                | Aesthetics | Conciseness | Performance | Overal Score |
+|----------------|------------|-------------|-------------|--------------|
+| `forEach` loop | ⭐️⭐️⭐️⭐️       | ⭐️⭐️⭐️⭐️⭐️       | ⭐️⭐️⭐️⭐️        | ⭐️⭐️⭐️⭐️         |
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-References
+`while` Loop
 ===
+I don't think any programmer is ever going to write their code like this but as of the time of writing this article, you can create a loop simply by using the `while` statement. I have very few examples where a `while` would be a useful way of doing a loop, especially through numbers, but for the sake of wholesomeness of this article, let's have a look at a `while` loop as well:
+
+```swift
+@inline(never)
+func whileLoop() {
+    
+    var value = 0
+    var lastValue = 0
+    while value < 0xDEADBEEF {
+        if value % 2 == 0 {
+            lastValue = value
+        }
+        value += 1
+    }
+    if lastValue < 0 {
+        print(lastValue)
+    }
+    
+}
+```
+
+Let's check out the ARM asm source as well:
+
+```asm
+0x00000001000098f8 FF0301D1                        sub        sp, sp, #0x40
+0x00000001000098fc F65701A9                        stp        x22, x21, [sp, #0x10]
+0x0000000100009900 F44F02A9                        stp        x20, x19, [sp, #0x20]
+0x0000000100009904 FD7B03A9                        stp        x29, x30, [sp, #0x30]
+0x0000000100009908 FDC30091                        add        x29, sp, #0x30
+0x000000010000990c 080080D2                        movz       x8, #0x0
+0x0000000100009910 140080D2                        movz       x20, #0x0
+0x0000000100009914 A9D5BB52                        movz       w9, #0xdead, lsl #16
+0x0000000100009918 E9DD9772                        movk       w9, #0xbeef
+
+0x000000010000991c 1F0140F2                        tst        x8, #0x1          ; XREF=__T012swift_weekly11AppDelegateC9whileLoopyyF+52
+0x0000000100009920 1401949A                        csel       x20, x8, x20, eq
+0x0000000100009924 08050091                        add        x8, x8, #0x1
+0x0000000100009928 1F0109EB                        cmp        x8, x9
+0x000000010000992c 8BFFFF54                        b.lt       0x10000991c
+
+0x0000000100009930 7405F8B6                        tbz        x20, #0x3f, 0x1000099dc
+
+0x0000000100009934 1F2003D5                        nop        
+0x0000000100009938 00FF0158                        ldr        x0, #0x10000d918
+0x000000010000993c 000200B5                        cbnz       x0, 0x10000997c
+
+0x0000000100009940 1F2003D5                        nop        
+0x0000000100009944 E0FE0158                        ldr        x0, #0x10000d920
+0x0000000100009948 200100B5                        cbnz       x0, 0x10000996c
+
+0x000000010000994c E0030032                        orr        w0, wzr, #0x1
+0x0000000100009950 E3230091                        add        x3, sp, #0x8
+0x0000000100009954 010080D2                        movz       x1, #0x0
+0x0000000100009958 020080D2                        movz       x2, #0x0          ; argument #1 for method _swift_rt_swift_getExistentialTypeMetadata
+0x000000010000995c 5E010094                        bl         _swift_rt_swift_getExistentialTypeMetadata
+0x0000000100009960 08FE0110                        adr        x8, #0x10000d920
+0x0000000100009964 1F2003D5                        nop        
+0x0000000100009968 00FD9FC8                        stlr       x0, [x8]
+
+0x000000010000996c B9010094                        bl         imp___stubs___T0s23_ContiguousArrayStorageCMa ; XREF=__T012swift_weekly11AppDelegateC9whileLoopyyF+80
+0x0000000100009970 48FD0110                        adr        x8, #0x10000d918
+0x0000000100009974 1F2003D5                        nop        
+0x0000000100009978 00FD9FC8                        stlr       x0, [x8]
+
+0x000000010000997c E1031A32                        orr        w1, wzr, #0x40    ; XREF=__T012swift_weekly11AppDelegateC9whileLoopyyF+68
+0x0000000100009980 E20B0032                        orr        w2, wzr, #0x7
+0x0000000100009984 A1FDFF97                        bl         _swift_rt_swift_allocObject
+0x0000000100009988 F30300AA                        mov        x19, x0
+0x000000010000998c E8030032                        orr        w8, wzr, #0x1
+0x0000000100009990 E9031F32                        orr        w9, wzr, #0x2
+0x0000000100009994 682601A9                        stp        x8, x9, [x19, #0x10]
+0x0000000100009998 1F2003D5                        nop        
+0x000000010000999c E8330158                        ldr        x8, #0x10000c018
+0x00000001000099a0 681E00F9                        str        x8, [x19, #0x38]
+0x00000001000099a4 741200F9                        str        x20, [x19, #0x20]
+0x00000001000099a8 B0010094                        bl         imp___stubs___T0s5printySayypGd_SS9separatorSS10terminatortFfA0_
+0x00000001000099ac F40300AA                        mov        x20, x0
+0x00000001000099b0 F50301AA                        mov        x21, x1
+0x00000001000099b4 F60302AA                        mov        x22, x2
+0x00000001000099b8 AF010094                        bl         imp___stubs___T0s5printySayypGd_SS9separatorSS10terminatortFfA1_
+0x00000001000099bc E40300AA                        mov        x4, x0
+0x00000001000099c0 E50301AA                        mov        x5, x1
+0x00000001000099c4 E60302AA                        mov        x6, x2
+0x00000001000099c8 E00313AA                        mov        x0, x19
+0x00000001000099cc E10314AA                        mov        x1, x20
+0x00000001000099d0 E20315AA                        mov        x2, x21
+0x00000001000099d4 E30316AA                        mov        x3, x22
+0x00000001000099d8 A1010094                        bl         imp___stubs___T0s5printySayypGd_SS9separatorSS10terminatortF
+
+0x00000001000099dc FD7B43A9                        ldp        x29, x30, [sp, #0x30] ; XREF=__T012swift_weekly11AppDelegateC9whileLoopyyF+56
+0x00000001000099e0 F44F42A9                        ldp        x20, x19, [sp, #0x20]
+0x00000001000099e4 F65741A9                        ldp        x22, x21, [sp, #0x10]
+0x00000001000099e8 FF030191                        add        sp, sp, #0x40
+0x00000001000099ec C0035FD6                        ret
+```
+
+The generated assembly code for this `while` loop is very similar to that generated for the `forEach` statement and that on its own very similar to the `for` loop. So as far as the asm code is concerned you can be certain that the compiler is doing a hell of a job! But what about performance. I am going to put this into our `HighPriority` class and run it with full optimization on an iPhone 7:
+
+```swift
+HighPriority(task: whileLoop).perform { (time) in
+    print(time)
+}
+```
+
+And I am receiving the following score: **2.45 seconds**
+
+Verdict:
+
+|              | Aesthetics | Conciseness | Performance | Overal Score |
+|--------------|------------|-------------|-------------|--------------|
+| `while` loop | ⭐️⭐️⭐️        | ⭐️⭐️⭐️         | ⭐️⭐️⭐️⭐️        | ⭐️⭐️⭐️          |
+
+The reason behind the low score for aesthetics and conciseness are co-related. The `while` statement is physically more syntax to write and hence takes longer to understand than a simple for-loop for a finite task such as going through an array.
+
+
+`repeat...while` Loop
+===
+This type of loop is very similar to the `while` loop which i talked about earlier with the only difference being that this loop puts the condition at the end of the loop. So you can say that the loop runs at least once and then checks for its condition to exit or continue.
+
+```swift
+@inline(never)
+    func repeatLoop() {
+        
+        var value = 0
+        var lastValue = 0
+        
+        repeat {
+            if value % 2 == 0 {
+                lastValue = value
+            }
+            value += 1
+        } while value < 0xDEADBEEF
+        
+        if lastValue < 0 {
+            print(lastValue)
+        }
+        
+    }
+```
+
+I won't go through the ARM assembly code for this type of loop since that's not one of the measurements in our verdicts and I didn't really go into the details of the other ARM assembly outputs either so it's pointless for the purpose of this article. Let's run this code with full optimization with our `HighPriority` class on an iPhone 7 and see the results:
+
+```swift
+HighPriority(task: repeatLoop).perform { (time) in
+    print(time)
+}
+```
+
+And I'm receiving the following value: **2.49 seconds**
+
+Verdict:
+
+|                       | Aesthetics | Conciseness | Performance | Overal Score |
+|-----------------------|------------|-------------|-------------|--------------|
+| `repeat...while` loop | ⭐️⭐️⭐️        | ⭐️⭐️⭐️         | ⭐️⭐️⭐️⭐️        | ⭐️⭐️⭐️          |
+
+I scored the aesthetics and the conciseness categories of the `while` loop lower than the traditional `for` loop since it looks disgusting in my opinion and it also puts the condition of the loop at the end, which makes it less readable. So let's gather all the data:
+
+Final Verdict
+===
+
+Here are the contestants and their verdicts, **sorted by overal score**:
+
+|                       | Aesthetics | Conciseness | Performance | Overal Score |
+|-----------------------|------------|-------------|-------------|--------------|
+| `for` loop | ⭐️⭐️⭐️⭐️⭐️      | ⭐️⭐️⭐️⭐️⭐️       | ⭐️⭐️⭐️⭐️        | ⭐️⭐️⭐️⭐️         |
+| `forEach` loop | ⭐️⭐️⭐️⭐️       | ⭐️⭐️⭐️⭐️⭐️       | ⭐️⭐️⭐️⭐️        | ⭐️⭐️⭐️⭐️         |
+| `repeat...while` loop | ⭐️⭐️⭐️        | ⭐️⭐️⭐️         | ⭐️⭐️⭐️⭐️        | ⭐️⭐️⭐️          |
+| `while` loop | ⭐️⭐️⭐️        | ⭐️⭐️⭐️         | ⭐️⭐️⭐️⭐️        | ⭐️⭐️⭐️          |

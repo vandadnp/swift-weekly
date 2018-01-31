@@ -16,29 +16,87 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     @inline(never)
     func traditionalForLoop() {
         
+        var lastValue = 0
         for value in 0...0xDEADBEEF {
             if value % 0xDEED == 0 {
-                print(value)
+                lastValue = value
             }
+        }
+        if lastValue < 0 {
+            print(lastValue)
         }
         
     }
     
-@inline(never)
-func forEachLoop() {
-    
-    (0...0xDEADBEEF).forEach {value in
-        if value % 2 == 0 {
-            print(value)
+    @inline(never)
+    func forEachLoop() {
+        
+        var lastValue = 0
+        (0...0xDEADBEEF).forEach {value in
+            if value % 2 == 0 {
+                lastValue = value
+            }
         }
+        if lastValue < 0 {
+            print(lastValue)
+        }
+        
     }
     
-}
+    @inline(never)
+    func whileLoop() {
+        
+        var value = 0
+        var lastValue = 0
+        while value < 0xDEADBEEF {
+            if value % 2 == 0 {
+                lastValue = value
+            }
+            value += 1
+        }
+        if lastValue < 0 {
+            print(lastValue)
+        }
+        
+    }
+    
+    @inline(never)
+    func repeatLoop() {
+        
+        var value = 0
+        var lastValue = 0
+        
+        repeat {
+            if value % 2 == 0 {
+                lastValue = value
+            }
+            value += 1
+        } while value < 0xDEADBEEF
+        
+        if lastValue < 0 {
+            print(lastValue)
+        }
+        
+    }
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
-        traditionalForLoop()
-        forEachLoop()
+        
+        //        HighPriority(task: traditionalForLoop).perform { (time) in
+        //            print(time)
+        //        }
+        //
+        //        HighPriority(task: forEachLoop).perform { (time) in
+        //            print(time)
+        //        }
+        //
+        //        traditionalForLoop()
+        //        forEachLoop()
+        
+        HighPriority(task: repeatLoop).perform { (time) in
+            print(time)
+        }
+        
         return true
     }
     
