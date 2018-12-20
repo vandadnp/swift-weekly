@@ -70,4 +70,9 @@ All I did here was to add the little `<T>` syntax to the `Stack` class telling t
 let stack = Stack<Int>()
 ```
 
+Thanks to this generic implementation of the `Stack` class we are able to push and pop any value type that a Swift array can contain, including but not limited to `String` and `Double`.
+
+We need generics to write less repeated code. In general, in programming, you are going to want to, except for very special cases, limit the number of times that you repeat yourself and generics help us greatly with that task.
+
+
 
