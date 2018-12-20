@@ -124,3 +124,61 @@ extension Array where Element: Numeric {
 let values = [10.2, 1, 3]
 print(values.sum()) //prints out 14.2
 ```
+
+## Practical Example
+I've always been annoyed by the fact that functions are not extendable in Swift. For instance, if you want to extend any function that takes in a single `Int` and returns a `String`, you simply can't. So yes, functions in Swift are not extendable, and that's sad.
+
+For this section I think we can write our own definition of a generic and synchronous function. Let's see what we mean by that.
+
+Every function has an input and an output even if the output is `Void`. Let's define this with protocols:
+
+```swift
+import Foundation
+
+protocol HasInput {
+    associatedtype Input
+}
+
+protocol HasOutput {
+    associatedtype Output
+}
+
+protocol SyncFunc: HasInput, HasOutput {
+    func process(_ input: Input) -> Output
+}
+```
+
+At the end of this we have a protocol called `SyncFunc` (as in synchronous function, since asynchronous functions are a whole other beast, see RxSwift).
+
+So how do we use it, here is an example:
+
+```swift
+struct StringLength: SyncFunc {
+    typealias Input = String
+    typealias Output = Int
+    func process(_ input: Input) -> Output {
+        return input.count
+    }
+}
+```
+
+And this is how we would use `StringLength`:
+
+```swift
+let length = StringLength().process("Foo Bar")
+print(length) //prints 7
+```
+
+Here we defined a new type called `StringLength` that can take in any value of type `String` and calculate its result. Now that `StringLength` is a concrete implementation of `SyncFunc` with specific Input and Output types, we can extend it using generic constraining:
+
+```swift
+extension SyncFunc where Output: Numeric {
+    func outputSquared(withInput input: Input) -> Output {
+        let result = process(input)
+        return result * result
+    }
+}
+```
+
+Here we are extending `SyncFunc` as long as its output conforms to `Numeric` and exposing a new function through our extension which squares the result of the `process(_:)` function. Not so bad!
+
