@@ -76,5 +76,21 @@ We need generics to write less repeated code. In general, in programming, you ar
 When you define a generic type, you will be able to constraint that type inside your implementation so that you expose certain methods or functionalities inside your generic type depending on the type of the generic value. Does that even make sense? Let me show you an example:
 
 
+```swift
+import Foundation
+
+extension Array where Element == Int {
+    func sum() -> Int {
+        return reduce(0, +)
+    }
+}
+
+let values = [10, 1, 3]
+print(values.sum()) //prints out 14
+```
+
+This is an extension on Array only when its elements are of type `Int` and then in that case we expose a function called `sum()` which calculates the sum of all the elements in the array.
+
+
 
 
