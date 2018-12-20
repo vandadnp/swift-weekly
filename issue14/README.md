@@ -107,3 +107,20 @@ print(values.sum()) //prints out 14
 ```
 
 Note that instead of saying `Element == Int` we are saying `Element: FixedWidthInteger` where the former expects a specific type while the latter expects conformance to a protocol. Also note how the `sum()` function returned `Int` but now returns `Element` since all Swift `Array` instances already have a generic type called `Element` and in our case we can't really guess what the return value of the `sum()` function will be, but rather it will be an `Element` of the same array.
+
+From the requirements perspective of our `sum()` function, it only needs a value that has a `+` function so a type that can be added to another value of its own time, so that means `Double` and `Float` and `CGFloat` and other numeric values should also be able to use our extension. But if you initialize your `values` constant with `Double` values, you'll see that the `sum()` function wont' be available to you since we are constrainting our extension to values that conform to the `FixedWidthInteger` and unfortunately `Double` and `Float` do not conform to that protocol.
+
+What we need to do is to find a higher level protocol that all these values conform to and the protocol should also expose the `+` function and the protocol we are looking for is called `Numeric`. If you just change `FixedWidthInteger` in our implementation to `Numeric` all of a sudden our extension starts working for even `Double` and `Float` as shown here:
+
+```swift
+import Foundation
+
+extension Array where Element: Numeric {
+    func sum() -> Element {
+        return reduce(0, +)
+    }
+}
+
+let values = [10.2, 1, 3]
+print(values.sum()) //prints out 14.2
+```
