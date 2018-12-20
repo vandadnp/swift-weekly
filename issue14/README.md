@@ -89,8 +89,21 @@ let values = [10, 1, 3]
 print(values.sum()) //prints out 14
 ```
 
-This is an extension on Array only when its elements are of type `Int` and then in that case we expose a function called `sum()` which calculates the sum of all the elements in the array.
+This is an extension on Array only when its elements are of type `Int` and then in that case we expose a function called `sum()` which calculates the sum of all the elements in the array. 
 
+You might be asking: what if I have elements of type `UInt`? Will this still work? No it won't because we are specifically saying that this function is available for arrays that contain items of type `Int` and `Int` is not a protocol that various types can conform to, but rather a `struct` but both `Int` and `UInt` conform a protocol called `FixedWidthInteger` so we could change our definition of this extension so that it works for all fixed width integers:
 
+```swift
+import Foundation
 
+extension Array where Element: FixedWidthInteger {
+    func sum() -> Element {
+        return reduce(0, +)
+    }
+}
 
+let values: [UInt] = [10, 1, 3]
+print(values.sum()) //prints out 14
+```
+
+Note that instead of saying `Element == Int` we are saying `Element: FixedWidthInteger` where the former expects a specific type while the latter expects conformance to a protocol. Also note how the `sum()` function returned `Int` but now returns `Element` since all Swift `Array` instances already have a generic type called `Element` and in our case we can't really guess what the return value of the `sum()` function will be, but rather it will be an `Element` of the same array.
