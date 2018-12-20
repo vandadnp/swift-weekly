@@ -144,6 +144,7 @@ protocol HasOutput {
 }
 
 protocol SyncFunc: HasInput, HasOutput {
+    init()
     func process(_ input: Input) -> Output
 }
 ```
@@ -198,10 +199,28 @@ struct DigitCount: SyncFunc {
 And now let's write some operators that allows us to do something like this:
 
 ```swift
-let lengthDigitCount = "Foo Bar" -> StringLength.self -> DigitCount.self
+let lengthDigitCount = "Foo Bar" --> StringLength.self --> DigitCount.self
 ```
 
 And we would expect the value of `lengthDigitCount` to be 1 because `StringLength` would get the length of the string and that would be 7 and `DigitCount` should count the number of digits in 7 and that should be 1.
 
 First let's write the operator between `String` and `StringLength`:
 
+```swift
+infix operator -->: AdditionPrecedence
+func --> <Input, Func: SyncFunc>(lhs: Input, rhs: Func.Type) -> Func.Output where Input == Func.Input {
+    return rhs.init().process(lhs)
+}
+
+let length = "Foo Bar" --> StringLength.self
+print(length) //prints 7
+```
+
+I'm not going to over-explain this since it's quite obvious what I'm doing. We take _a_ value on the left hand side of the operator as long as that value is the same value that the synchronous function takes as its input.
+
+Now that we have this operator, we can easily use it to chain `DigitCount` as well:
+
+```swift
+let lengthDigitCount = "Foo Bar" --> StringLength.self --> DigitCount.self
+print(lengthDigitCount) //prints 1
+```
