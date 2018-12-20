@@ -2,10 +2,7 @@
 
 ```
 Vandad Nahavandipoor
-http://www.oreilly.com/pub/au/4596
 Email: vandad.np@gmail.com
-Blog: http://vandadnp.wordpress.com
-Skype: vandad.np
 ```
 
 ## Introduction
@@ -13,7 +10,7 @@ In this article we are going to explore generics in Swift and how we can use the
 
 Note: From this issue onwards, I've decided to write all Swift-Weekly issues on my iPad since now we have Swift Playgrounds available for iPad as well so that's pretty nice!
 
-# Why do we need generics?
+## Why do we need generics?
 Imagine that you want to build a stack where you can push and pop things into the stack, just like `git stash` where you can do `git stash` to push and then `git stash pop` to pop the last item from the stash. Now, I know stash and stack sound quite alike but you get the idea. Git's stash is a stack and every stack has a push and pop mechanism, or at least by definition it should.
 
 Now imagine that you write a simple stack class in Swift for values of type `Int`:
@@ -31,6 +28,7 @@ class Stack {
         return items.count > 0 ? items.removeFirst() : nil
     }
 }
+
 
 let stack = Stack()
 stack.push(10)
@@ -73,6 +71,10 @@ let stack = Stack<Int>()
 Thanks to this generic implementation of the `Stack` class we are able to push and pop any value type that a Swift array can contain, including but not limited to `String` and `Double`.
 
 We need generics to write less repeated code. In general, in programming, you are going to want to, except for very special cases, limit the number of times that you repeat yourself and generics help us greatly with that task.
+
+## Generic Constraints
+When you define a generic type, you will be able to constraint that type inside your implementation so that you expose certain methods or functionalities inside your generic type depending on the type of the generic value. Does that even make sense? Let me show you an example:
+
 
 
 
