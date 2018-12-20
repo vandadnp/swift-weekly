@@ -43,3 +43,31 @@ print(stack.pop())
 
 This stack does the least it has to do and does it rather fine. However, it's constrained only to `Int` values. If you look inside the `Stack` class you can reason that as long as _an item_ can be placed inside a Swift array, in this case, our `items` array, then the `Stack` class should allow that as well. So let's make this class more generic:
 
+```swift
+import Foundation
+
+class Stack<T> {
+    private var items = [T]()
+    func push(_ value: T) {
+        items.insert(value, at: 0)
+    }
+    func pop() -> T? {
+        return items.count > 0 ? items.removeFirst() : nil
+    }
+}
+
+let stack = Stack<Int>()
+stack.push(10)
+stack.push(20)
+print(stack.pop())
+print(stack.pop())
+print(stack.pop())
+```
+
+All I did here was to add the little `<T>` syntax to the `Stack` class telling the Swift compiler that this class is associated with some value defined as `T` and the definition of `T` will later be revealed when the caller instantiates `Stack` as you can see in the following line of code:
+
+```swift
+let stack = Stack<Int>()
+```
+
+
