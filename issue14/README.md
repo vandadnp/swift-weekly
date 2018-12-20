@@ -182,3 +182,26 @@ extension SyncFunc where Output: Numeric {
 
 Here we are extending `SyncFunc` as long as its output conforms to `Numeric` and exposing a new function through our extension which squares the result of the `process(_:)` function. Not so bad!
 
+## Generic Operators
+Building on top of our example from the previous section, let's see how we can write generic operators but before doing that let's write another synchronous function that can count the numebr of digits of an `Int`:
+
+```swift
+struct DigitCount: SyncFunc {
+    typealias Input = Int
+    typealias Output = Int
+    func process(_ input: Input) -> Output {
+        return StringLength().process("\(input)")
+    }
+}
+```
+
+And now let's write some operators that allows us to do something like this:
+
+```swift
+let lengthDigitCount = "Foo Bar" -> StringLength.self -> DigitCount.self
+```
+
+And we would expect the value of `lengthDigitCount` to be 1 because `StringLength` would get the length of the string and that would be 7 and `DigitCount` should count the number of digits in 7 and that should be 1.
+
+First let's write the operator between `String` and `StringLength`:
+
