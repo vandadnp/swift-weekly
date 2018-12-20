@@ -1,4 +1,4 @@
-# Swift Weekly - Issue 14 - Generics
+# Swift Weekly - Issue 14 - Generics (Part 1)
 
 ```
 Vandad Nahavandipoor
@@ -224,3 +224,14 @@ Now that we have this operator, we can easily use it to chain `DigitCount` as we
 let lengthDigitCount = "Foo Bar" --> StringLength.self --> DigitCount.self
 print(lengthDigitCount) //prints 1
 ```
+
+## Closing Words
+I think by now you have an idea how generics work. In generics, you either:
+
+1. Don't constraint your generic types at all, as you saw in the `Stack` example
+2. Constraint your generic type to a protocol using the `:` syntax
+3. Constraint your generic type to a specific type using the `==` syntax
+
+In later articles we probably can have a look at some more advanced generics-related topics.
+
+HF
