@@ -18,3 +18,28 @@ Imagine that you want to build a stack where you can push and pop things into th
 
 Now imagine that you write a simple stack class in Swift for values of type `Int`:
 
+
+```swift
+import Foundation
+
+class Stack {
+    private var items = [Int]()
+    func push(_ value: Int) {
+        items.insert(value, at: 0)
+    }
+    func pop() -> Int? {
+        return items.count > 0 ? items.removeFirst() : nil
+    }
+}
+
+let stack = Stack()
+stack.push(10)
+stack.push(20)
+print(stack.pop())
+print(stack.pop())
+print(stack.pop())
+
+```
+
+This stack does the least it has to do and does it rather fine. However, it's constrained only to `Int` values. If you look inside the `Stack` class you can reason that as long as _an item_ can be placed inside a Swift array, in this case, our `items` array, then the `Stack` class should allow that as well. So let's make this class more generic:
+
