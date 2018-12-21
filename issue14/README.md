@@ -22,10 +22,10 @@ import Foundation
 class Stack {
     private var items = [Int]()
     func push(_ value: Int) {
-        items.insert(value, at: 0)
+        items.append(value)
     }
     func pop() -> Int? {
-        return items.count > 0 ? items.removeFirst() : nil
+        return items.count > 0 ? items.removeLast() : nil
     }
 }
 
@@ -36,7 +36,6 @@ stack.push(20)
 print(stack.pop())
 print(stack.pop())
 print(stack.pop())
-
 ```
 
 This stack does the least it has to do and does it rather fine. However, it's constrained only to `Int` values. If you look inside the `Stack` class you can reason that as long as _an item_ can be placed inside a Swift array, in this case, our `items` array, then the `Stack` class should allow that as well. So let's make this class more generic:
@@ -47,10 +46,10 @@ import Foundation
 class Stack<T> {
     private var items = [T]()
     func push(_ value: T) {
-        items.insert(value, at: 0)
+        items.append(value)
     }
     func pop() -> T? {
-        return items.count > 0 ? items.removeFirst() : nil
+        return items.count > 0 ? items.removeLast() : nil
     }
 }
 
